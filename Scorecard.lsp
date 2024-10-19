@@ -110,22 +110,38 @@
 
 ;; Avaliable categories to score given a dice roll
 
-(defun available-categories (dice)
-  "Return a list of available categories (1 to 12) based on the dice roll."
-  (append
-   (cond ((> (count-dice dice 1) 0) '(1)) (t '()))  ;; Aces
-   (cond ((> (count-dice dice 2) 0) '(2)) (t '()))  ;; Twos
-   (cond ((> (count-dice dice 3) 0) '(3)) (t '()))  ;; Threes
-   (cond ((> (count-dice dice 4) 0) '(4)) (t '()))  ;; Fours
-   (cond ((> (count-dice dice 5) 0) '(5)) (t '()))  ;; Fives
-   (cond ((> (count-dice dice 6) 0) '(6)) (t '()))  ;; Sixes
-   (cond ((three-of-a-kind-p dice) '(7)) (t '()))   ;; Three of a Kind
-   (cond ((four-of-a-kind-p dice) '(8)) (t '()))    ;; Four of a Kind
-   (cond ((full-house-p dice) '(9)) (t '()))        ;; Full House
-   (cond ((four-straight-p dice) '(10)) (t '()))    ;; Four Straight
-   (cond ((five-straight-p dice) '(11)) (t '()))    ;; Five Straight
-   (cond ((yahtzee-p dice) '(12)) (t '())))         ;; Yahtzee
-)
+(defun available-categories (dice scorecard)
+  "Return a list of available categories (1 to 12) based on the dice roll and the scorecard."
+  (filter-categories
+   (append
+    (cond ((> (count-dice dice 1) 0) '(1)) (t '()))  ;; Aces
+    (cond ((> (count-dice dice 2) 0) '(2)) (t '()))  ;; Twos
+    (cond ((> (count-dice dice 3) 0) '(3)) (t '()))  ;; Threes
+    (cond ((> (count-dice dice 4) 0) '(4)) (t '()))  ;; Fours
+    (cond ((> (count-dice dice 5) 0) '(5)) (t '()))  ;; Fives
+    (cond ((> (count-dice dice 6) 0) '(6)) (t '()))  ;; Sixes
+    (cond ((three-of-a-kind-p dice) '(7)) (t '()))   ;; Three of a Kind
+    (cond ((four-of-a-kind-p dice) '(8)) (t '()))    ;; Four of a Kind
+    (cond ((full-house-p dice) '(9)) (t '()))        ;; Full House
+    (cond ((four-straight-p dice) '(10)) (t '()))    ;; Four Straight
+    (cond ((five-straight-p dice) '(11)) (t '()))    ;; Five Straight
+    (cond ((yahtzee-p dice) '(12)) (t '())))         ;; Yahtzee
+   scorecard))
+
+(defun filter-categories (categories scorecard)
+  "Recursively filters out categories that are already filled in the scorecard."
+  (cond
+   ((null categories) '())  ;; Base case: no more categories to check
+   ((category-filled-p (first categories) scorecard)
+    (filter-categories (rest categories) scorecard))  ;; Skip if filled
+   (t
+    (cons (first categories) (filter-categories (rest categories) scorecard)))))  ;; Include if not filled
+
+(defun category-filled-p (category scorecard)
+  "Check if a given category is filled in the scorecard."
+  (let ((score (second (nth (- category 1) scorecard))))  ;; Access the second element of the scorecard entry
+    (not (null score))))  ;; Return T if filled (non-NIL value), NIL if not
+
 
 (defun count-dice (dice number)
   "Count how many dice match a specific number."
@@ -161,7 +177,9 @@
 (defun full-house-helper (dice unique-1 unique-2)
   (cond
     ((null dice)
-     (and unique-1 unique-2 (= (length unique-1) 3) (= (length unique-2) 2)))  ;; Base case
+     ;; Check both combinations for a full house
+     (or (and unique-1 unique-2 (= (length unique-1) 3) (= (length unique-2) 2))
+         (and unique-1 unique-2 (= (length unique-1) 2) (= (length unique-2) 3))))
     ((null unique-1)  ;; First unique set
      (full-house-helper (cdr dice) (list (car dice)) unique-2))
     ((and (null unique-2) (not (member (car dice) unique-1)))  ;; Second unique set

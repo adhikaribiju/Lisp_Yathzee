@@ -9,7 +9,7 @@
 
   (let ((dice (rollDice)))
     (format t "You rolled: ~{~a ~}~%" dice)
-    (format t "Available Categories to Score: ~a~%" (available-categories dice))
+    (format t "Available Categories to Score: ~a~%" (available-categories dice scorecard))
 
     (let ((final-dice (tryreroll dice scorecard 0 nil)))  ; Passing nil for kept-dice
       ; Display the final dice after rerolls
@@ -22,37 +22,54 @@
              (new-scorecard (scoreCategory scorecard final-dice category 1 round)))  ; Updating the scorecard
         (format t "You chose category ~a~%" category)
         (display-scorecard new-scorecard)  ; Display the updated scorecard
-        
+
         new-scorecard)))) ; Return the updated scorecard
 
 
 
-; Generate a list of numbers from start to end inclusive
+; Generate a list of numbers from start to end (inclusive)
+; (number-sequence 1 5) -> (1 2 3 4 5)
 (defun number-sequence (start end)
   (cond
     ((> start end) nil)
     (t (cons start (number-sequence (+ start 1) end)))))
 
+
+
+
 ; Create pairs of positions and dice values
+; (make-dice-pairs '(1 2 3) '(5 4 6)) ->  ((1 5) (2 4) (3 6))
 (defun make-dice-pairs (positions dice)
   (cond
     ((null positions) nil)
     (t (cons (cons (car positions) (car dice))
              (make-dice-pairs (cdr positions) (cdr dice))))))
 
+
+
+
 ; Find a matching dice pair for the given value
+;(find-matching-dice-pair 
+ ;5                                ; The value we're looking for
+ ;'((1 . 3) (2 . 5) (3 . 4) (4 . 5))  ; The list of dice pairs (position . value)
+ ;'(1 2 3 4)                      ; Available positions
+ ;'(3))                           ; Used positions
+ ; -> (2 . 5)
+; If the function could not find a pair that matched all these criteria, it would eventually return nil.
 (defun find-matching-dice-pair (value dice-pairs available-positions used-positions)
   (cond
     ((null dice-pairs) nil)
     (t
      (let ((pair (car dice-pairs)))
        (cond
-         ((and (equal (cdr pair) value)
-               (member (car pair) available-positions)
-               (not (member (car pair) used-positions)))
+         ((and (equal (cdr pair) value) ; Check if the value matches the dice value
+               (member (car pair) available-positions)  ; Check if the position is available
+               (not (member (car pair) used-positions)))  ;Check if the position hasn't been used
           pair)
          (t
           (find-matching-dice-pair value (cdr dice-pairs) available-positions used-positions)))))))
+
+
 
 ; Helper function to recursively match values to dice positions
 (defun match-values-to-dice-helper (values dice-pairs available-positions used-positions acc)
@@ -69,12 +86,16 @@
          (t
           (values nil nil)))))))
 
+; (match-values-to-dice '(5 2) '(4 4 4 4) '(1 2 3 4)) -> (t (1 2))
+; otherwise,  (match-values-to-dice '(5 2) '(4 4 4 4) '(1 2 3 4)) -> (nil nil)
 ; Try to match the user's desired dice values to available dice positions
 (defun match-values-to-dice (values dice available-positions)
   (let ((dice-pairs (make-dice-pairs (number-sequence 1 (length dice)) dice)))
     (match-values-to-dice-helper values dice-pairs available-positions '() '())))
 
 ; Validate dice values and map them to indices
+; (validate-dice-values '(5 2) '(5 2 4 5) '(3)) -> (t (1 2))
+; if no match found, returns nil nil
 (defun validate-dice-values (values dice kept-dice)
   (let ((available-dice (set-difference (number-sequence 1 (length dice)) kept-dice)))
     (multiple-value-bind (success indices)
@@ -89,14 +110,21 @@
              (kept-dice-values-helper (cdr kept-dice) dice)))))
 
 ; Retrieve kept dice values
+; (kept-dice-values-fn '(2 4) '(5 2 4 6)) -> (2 6)
+;  (2 6), which are the values of the dice at positions 2 and 4 in the dice list.
 (defun kept-dice-values-fn (kept-dice dice)
   (cond
     ((null kept-dice) nil)
     (t (kept-dice-values-helper kept-dice dice))))
 
+
+
+; (compute-new-kept-dice '(2 4) 5) -> (1 3 5) 
+; 1 3 5) the dice at these positions are the ones that will be kept and not rerolled.
 ; Compute the new kept dice based on the dice indices not being rerolled
 (defun compute-new-kept-dice (dice-indices dice-length)
   (set-difference (number-sequence 1 dice-length) dice-indices))
+
 
 ; Read a valid die value (1-6) from the user
 (defun read-die-value (current-value)
@@ -110,6 +138,9 @@
        (format t "Invalid value. Please enter a number between 1 and 6.~%")
        (read-die-value current-value)))))
 
+
+
+
 ; Helper function for rerolling dice manually at specified indices
 (defun manually-reroll-dice-by-indices-helper (dice indices position)
   (cond
@@ -122,6 +153,7 @@
              (manually-reroll-dice-by-indices-helper (cdr dice) indices (+ position 1))))))
 
 ; Return a new list of dice where the dice at the given indices are rerolled manually
+; (manually-reroll-dice-by-indices '(3 6 1 5) '(2 4)) -> (3 4 1 2)
 (defun manually-reroll-dice-by-indices (dice indices)
   (manually-reroll-dice-by-indices-helper dice indices 1))
 
@@ -214,7 +246,7 @@
          ; User chooses to stand
          ((equal userInput "N")
           (format t "You chose to stand.~%")
-          (format t "Available Categories to Score: ~a~%" (available-categories dice))
+          (format t "Available Categories to Score: ~a~%" (available-categories dice scorecard))
           dice)  ; Return the current dice
 
          ; Invalid input, ask again
@@ -224,5 +256,5 @@
     (t
      ; No more rerolls allowed
      (format t "You have used all your rerolls. You must stand now.~%")
-     (format t "Available Categories to Score: ~a~%" (available-categories dice))
+     (format t "Available Categories to Score: ~a~%" (available-categories dice scorecard))
      dice)))  ; Return the current dice
