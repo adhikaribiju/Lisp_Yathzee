@@ -77,3 +77,167 @@
     (t (cons (+ 1 (random 6))  ;; Generate a random dice value (between 1 and 6)
              (generate-random-dice (1- n))))))  ;; Recursively generate remaining dice
 ;; ;; ROLL DICE FUNCTION ENDS
+
+
+
+
+
+
+
+
+; The doReRoll function asks the user whether they want to reroll dice randomly or manually.
+; It keeps asking until valid input is given, 
+; then updates and returns the dice list with new values at the given indices.
+(defun doReRoll (dice indices)
+  (let ((choice (getValidChoice)))
+    (cond
+      ((equal choice 'R)
+       (reRollRandomly dice indices))
+      ((equal choice 'M)
+       (let ((new-values (getValidValues indices)))
+         (reRollManually dice indices new-values))))))
+
+(defun getValidChoice ()
+  (format t "Do you want to reroll manually (M) or randomly (R)? ")
+  (finish-output)
+  (let ((choice (read)))
+    (cond
+      ((or (equal choice 'M) (equal choice 'R)) choice)
+      (t (format t "Invalid input. Please enter 'M' for manually or 'R' for randomly.~%")
+         (getValidChoice)))))
+
+(defun getValidValues (indices)
+  (format t "Enter the new dice values as a list of length ~a: " (length indices))
+  (finish-output)
+  (let ((new-values (read)))
+    (cond
+      ((and (listp new-values)
+            (= (length new-values) (length indices)))
+       new-values)
+      (t (format t "Invalid list. Make sure the list has exactly ~a elements.~%" (length indices))
+         (getValidValues indices)))))
+
+(defun reRollRandomly (dice indices)
+  (rerollDice dice indices (generate-random-values (length indices))))
+
+(defun reRollManually(dice indices new-values)
+  (rerollDice dice indices new-values))
+
+(defun generate-random-values (n)
+  (if (<= n 0)
+      '()
+      (cons (+ 1 (random 6)) (generate-random-values (- n 1)))))
+
+(defun rerollDice (dice indices new-values)
+  (if (or (null indices) (null new-values))
+      dice
+      (let ((index (car indices))
+            (new-value (car new-values)))
+        (rerollDice (replaceNth dice (- index 1) new-value)
+                     (cdr indices)
+                     (cdr new-values)))))
+
+(defun replaceNth (lst n value)
+  (cond
+    ((null lst) '())
+    ((= n 0) (cons value (cdr lst)))
+    (t (cons (car lst) (replaceNth (cdr lst) (- n 1) value)))))
+
+
+
+;(print (doReRoll '(1 1 2 3 4) '(2 4)))
+
+
+
+
+; returns the number of times valueTocount appears in dice, else returns nil
+(defun findCount (dice valueTocount)
+  (cond
+    ((null dice) nil)  ;; Base case: if the list is empty, return nil
+    ((equal (car dice) valueTocount)  ;; If the first element matches valueTocount
+     (let ((rest-count (findCount (cdr dice) valueTocount)))
+       (if rest-count
+           (+ 1 rest-count)
+           1)))
+    (t (findCount (cdr dice) valueTocount))))  ;; Continue with the rest of the list
+
+
+
+
+
+  ; computer dice functions
+  (defun findMatchingIndices (dice match-count)
+  (cond
+    ((null dice) nil)  ;; If the list is empty, return nil
+    (t 
+     (let ((value (car dice))
+           (occurrences (countOccurrences (car dice) dice)))
+       (cond
+         ((= occurrences match-count) 
+          (findIndices value dice 1))
+         (t (findMatchingIndices (removeValue value dice) match-count)))))))
+
+(defun countOccurrences (value dice)
+  (cond
+    ((null dice) 0)  ;; Base case: if the list is empty, return 0
+    ((equal (car dice) value) 
+     (+ 1 (countOccurrences value (cdr dice))))
+    (t (countOccurrences value (cdr dice)))))
+
+(defun findIndices (value dice index)
+  (cond
+    ((null dice) '())  ;; Base case: if the list is empty, return an empty list
+    ((equal (car dice) value) 
+     (cons index (findIndices value (cdr dice) (+ index 1))))
+    (t (findIndices value (cdr dice) (+ index 1)))))
+
+(defun removeValue (value dice)
+  (cond
+    ((null dice) '())
+    ((equal (car dice) value) (removeValue value (cdr dice)))
+    (t (cons (car dice) (removeValue value (cdr dice))))))
+
+(defun giveFourOfaKindIndices (dice)
+  (findMatchingIndices dice 4))
+
+(defun giveThreeOfaKindIndices (dice)
+  (findMatchingIndices dice 3))
+
+(defun giveTwoOfaKindIndices (dice)
+  (findMatchingIndices dice 2))
+
+
+  (defun custom-remove (lst items-to-remove)
+  (cond
+    ((null lst) '())  ;; If the list is empty, return an empty list
+    ((member (car lst) items-to-remove) 
+     (custom-remove (cdr lst) items-to-remove))  ;; If the element is in items-to-remove, skip it
+    (t (cons (car lst) (custom-remove (cdr lst) items-to-remove)))))  ;; Otherwise, keep the element
+
+
+; four of a kind ko lagi,
+; returns the index of the element that is part of the two distinct pairs of numbers in the list
+(defun checkUniqueAmongPairs (lst)
+  (let ((pairs (collectPairs lst lst)))
+    (cond
+      ((or (null pairs) (/= (length pairs) 2))
+       nil)  ;; Return nil if there are not exactly two distinct pairs
+      (t
+       (uniqueIndexAmongPairs lst (car pairs) (cadr pairs) 0)))))  ;; Find the unique element
+
+(defun collectPairs (lst full-list &optional pairs)
+  "Collect distinct elements that appear exactly twice."
+  (cond
+    ((null lst) pairs)  ;; If the list is empty, return the collected pairs
+    ((and (= (count (car lst) full-list) 2)
+          (not (member (car lst) pairs)))
+     (collectPairs (cdr lst) full-list (cons (car lst) pairs)))
+    (t (collectPairs (cdr lst) full-list pairs))))
+
+(defun uniqueIndexAmongPairs (lst pair1 pair2 index)
+  (cond
+    ((null lst) nil)  ;; If the list is empty, return nil
+    ((and (not (equal (car lst) pair1))
+          (not (equal (car lst) pair2)))
+     (+ index 1))  ;; Return the incremented index if the element is not part of either pair
+    (t (uniqueIndexAmongPairs (cdr lst) pair1 pair2 (+ index 1)))))

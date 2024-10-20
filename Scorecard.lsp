@@ -150,6 +150,18 @@
     ((= (car dice) number) (+ 1 (count-dice (cdr dice) number)))  ;; Count this die and recurse
     (t (count-dice (cdr dice) number))))  ;; Move to the next die
 
+
+(defun two-of-a-kind-p (dice)
+  "Check if there are at least three dice with the same value."
+  (two-of-a-kind-helper dice dice))
+
+(defun two-of-a-kind-helper (dice original-dice)
+  (cond
+    ((null dice) nil)  ;; No match found
+    ((>= (count-dice original-dice (car dice)) 2) t)  ;; Found three or more of a kind
+    (t (two-of-a-kind-helper (cdr dice) original-dice))))  ;; Recurse
+
+
 (defun three-of-a-kind-p (dice)
   "Check if there are at least three dice with the same value."
   (three-of-a-kind-helper dice dice))
@@ -241,6 +253,7 @@
 (defun getCategoryScore (dice category-no)
   "Return the score for a given category based on the dice roll and category number."
   (cond
+    ((null category-no) (print dice))
     ;; Categories 1 to 6: Sum of specific dice (Aces, Twos, Threes, etc.)
     ((= category-no 1) (sum-dice dice 1))  ;; Aces
     ((= category-no 2) (sum-dice dice 2))  ;; Twos
@@ -283,3 +296,25 @@
   (cond
     ((null dice) 0)  ;; Base case: no dice left
     (t (+ (car dice) (sum-all-dice (cdr dice))))))  ;; Add each die value
+
+
+; given the categoryNo, check if category is available to score
+(defun isCategoryAvailable (category-index scorecard numOfRolls)
+  (print "Category Available ko ho hai")
+  ;(print (first scorecard))
+  ;(print "Category Available ko ho hai")
+  ;(print (second scorecard))
+  ;(format t "ROll NO: ~a~%" numOfRolls)
+
+  (cond ((= numOfRolls 1) 
+    (let ((category (nth (- category-index 1) scorecard)))
+      (cond
+        ((null (second category)) t)  ;; If the score is nil, return true (t)
+        (t nil)))
+  )
+  (t (isCategoryAvailable category-index (first scorecard) 1))
+  )
+
+  )                    ;; Otherwise, return false (nil)
+
+;
