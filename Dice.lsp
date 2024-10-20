@@ -241,3 +241,100 @@
           (not (equal (car lst) pair2)))
      (+ index 1))  ;; Return the incremented index if the element is not part of either pair
     (t (uniqueIndexAmongPairs (cdr lst) pair1 pair2 (+ index 1)))))
+
+
+
+
+
+
+
+;; the functions below checks if the dices are in certain sequence, to accomplish this there are helper functions to sort and delete some elements
+(defun removeDuplicates (lst)
+  (cond
+    ((null lst) nil)
+    (t (cons (car lst) (removeDuplicates (removeElement (car lst) (cdr lst)))))))
+
+(defun removeElement (element lst)
+  (cond
+    ((null lst) nil)
+    ((= element (car lst)) (removeElement element (cdr lst)))
+    (t (cons (car lst) (removeElement element (cdr lst))))))
+
+(defun sortDice (lst)
+  (cond
+    ((null lst) nil)
+    ((null (cdr lst)) lst)
+    (t (let* ((pivot (car lst))
+              (less (partitionLess pivot (cdr lst)))
+              (greater (partitionGreaterOrEqual pivot (cdr lst))))
+         (append (sortDice less) (list pivot) (sortDice greater))))))
+
+(defun partitionLess (pivot lst)
+  (cond
+    ((null lst) nil)
+    ((< (car lst) pivot) (cons (car lst) (partitionLess pivot (cdr lst))))
+    (t (partitionLess pivot (cdr lst)))))
+
+(defun partitionGreaterOrEqual (pivot lst)
+  (cond
+    ((null lst) nil)
+    ((>= (car lst) pivot) (cons (car lst) (partitionGreaterOrEqual pivot (cdr lst))))
+    (t (partitionGreaterOrEqual pivot (cdr lst)))))
+
+
+(defun isTwoSequential (dice)
+  (let ((sorted-dice (sortDice (removeDuplicates dice))))
+    (findTwoSequential sorted-dice)))
+
+(defun findTwoSequential (sorted-dice)
+  (cond
+    ((null sorted-dice) nil)
+    ((null (cdr sorted-dice)) nil)
+    ((= (1+ (car sorted-dice)) (cadr sorted-dice))
+     (list (car sorted-dice) (cadr sorted-dice)))
+    (t (findTwoSequential (cdr sorted-dice)))))
+
+(defun isThreeSequential (dice)
+  (let ((sorted-dice (sortDice (removeDuplicates dice))))
+    (findThreeSequential sorted-dice)))
+
+(defun findThreeSequential (sorted-dice)
+  (cond
+    ((or (null sorted-dice) (null (cdr sorted-dice)) (null (cddr sorted-dice))) nil)
+    ((and (= (1+ (car sorted-dice)) (cadr sorted-dice))
+          (= (1+ (cadr sorted-dice)) (caddr sorted-dice)))
+     (list (car sorted-dice) (cadr sorted-dice) (caddr sorted-dice)))
+    (t (findThreeSequential (cdr sorted-dice)))))
+
+(defun isFourSequential (dice)
+  (let ((sorted-dice (sortDice (removeDuplicates dice))))
+    (findFourSequential sorted-dice)))
+
+(defun findFourSequential (sorted-dice)
+  (cond
+    ((or (null sorted-dice) (null (cdr sorted-dice)) (null (cddr sorted-dice)) (null (cdddr sorted-dice))) nil)
+    ((and (= (1+ (car sorted-dice)) (cadr sorted-dice))
+          (= (1+ (cadr sorted-dice)) (caddr sorted-dice))
+          (= (1+ (caddr sorted-dice)) (cadddr sorted-dice)))
+     (list (car sorted-dice) (cadr sorted-dice) (caddr sorted-dice) (cadddr sorted-dice)))
+    (t (findFourSequential (cdr sorted-dice)))))
+
+(defun findIndicesOfSequence (dice sequence)
+  (findIndicesS dice sequence 1))
+
+(defun findIndicesS (dice sequence current-index)
+  (cond
+    ((null sequence) nil)
+    ((null dice) nil)
+    ((= (car dice) (car sequence))
+     (let ((rest-indices (findIndicesS (cdr dice) (cdr sequence) (1+ current-index))))
+       (cond
+         (rest-indices (cons current-index rest-indices))
+         (t (cons current-index nil)))))
+    (t (findIndicesS (cdr dice) sequence (1+ current-index)))))
+
+(defun findIndex (element dice current-index)
+  (cond
+    ((null dice) nil)
+    ((= (car dice) element) current-index)
+    (t (findIndex element (cdr dice) (1+ current-index)))))
