@@ -14,17 +14,46 @@
     (let ((final-dice (tryreroll dice scorecard 0 nil)))  ; Passing nil for kept-dice
       ; Display the final dice after rerolls
       (format t "Your final dice: ~{~a ~}~%" final-dice)
-      (format t "Enter the category you wish to score: ")
-      (finish-output)
+      
+      (cond ((not (null (available-categories dice scorecard)))
+            (format t "Enter the category you wish to score: ")
+            (finish-output)
 
-      ; Read the category and update the scorecard
-      (let* ((category (read))
-             (new-scorecard (scoreCategory scorecard final-dice category 1 round)))  ; Updating the scorecard
-        (format t "You chose category ~a~%" category)
-        (display-scorecard new-scorecard)  ; Display the updated scorecard
+            ; Read the category and update the scorecard
+            (let* ((category (getCategoryNoFromUser scorecard final-dice))
+                  (new-scorecard (scoreCategory scorecard final-dice category 1 round)))  ; Updating the scorecard
+              (format t "You chose category ~a~%" category)
+              (display-scorecard new-scorecard)  ; Display the updated scorecard
 
-        new-scorecard)))) ; Return the updated scorecard
+              new-scorecard)
+            )
+            (t 
+              (format t "No category to score. ~%")
+              scorecard
+              ))
+      ))) ; Return the updated scorecard
 
+
+(defun getCategoryNoFromUser (scorecard dice)
+  (finish-output)
+  (format t "Enter a category number: ")
+  (let ((userInput (read)))
+    (cond
+      ;; Check if the input is a number
+      ((numberp userInput)
+       (cond
+         ;; Check if the number is in the available categories
+         ((member userInput (available-categories dice scorecard))
+          (format t "User Entered ~a~% " userInput)
+          userInput)
+         (t
+          (format t "Invalid Category. Check Available Categories~%")
+          (getCategoryNoFromUser scorecard dice))))
+      
+      ;; If it's not a number, prompt the user again
+      (t
+       (format t "Invalid input. Please enter a valid number.~%")
+       (getCategoryNoFromUser scorecard dice)))))
 
 
 ; Generate a list of numbers from start to end (inclusive)

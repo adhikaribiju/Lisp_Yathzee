@@ -34,7 +34,7 @@
     ((null scorecard)
      (cond
        ((< human-score computer-score) 1)  ;; Return 1 if human has a lower score
-       ((< computer-score human-score) 0)  ;; Return 0 if computer has a lower score
+       ((< computer-score human-score) 2)  ;; Return 0 if computer has a lower score
        (t 1)))  ;; Return 1 if they are equal, or human by default
 
     ;; Recursive case: Process the first element and move on to the rest
@@ -47,8 +47,8 @@
          ((and score (= player 1)) 
           (calculate-scores-helper (rest scorecard) (+ human-score score) computer-score))
          
-         ;; If score is non-nil and the player is computer (0), add to computer-score
-         ((and score (= player 0)) 
+         ;; If score is non-nil and the player is computer (2), add to computer-score
+         ((and score (= player 2)) 
           (calculate-scores-helper (rest scorecard) human-score (+ computer-score score)))
          
          ;; If score is nil or player ID is invalid, move to the next entry
@@ -207,12 +207,17 @@
   (let ((visited (sort-visited-dice dice)))
     (four-straight-helper visited)))
 
-(defun sort-visited-dice (dice)
-  "Sort the visited dice manually without using `sort`."
+(defun insert-in-order (element sorted-list)
   (cond
-    ((null dice) '())  ;; Base case: no dice left
-    ((member (car dice) (sort-visited-dice (cdr dice))) (sort-visited-dice (cdr dice)))  ;; Skip duplicates
-    (t (cons (car dice) (sort-visited-dice (cdr dice))))))  ;; Add to sorted list
+    ((null sorted-list) (list element))  ;; If the sorted list is empty, return a list with the element
+    ((<= element (car sorted-list)) (cons element sorted-list))  ;; Insert element in the correct position
+    (t (cons (car sorted-list) (insert-in-order element (cdr sorted-list))))))  ;; Continue searching for the right spot
+
+(defun sort-visited-dice (dice)
+  (cond
+    ((null dice) '())  ;; Base case: if the list is empty, return an empty list
+    (t (insert-in-order (car dice) (sort-visited-dice (cdr dice))))))  ;; Insert the first element into the sorted rest
+
 
 (defun four-straight-helper (visited)
   (cond
@@ -300,7 +305,7 @@
 
 ; given the categoryNo, check if category is available to score
 (defun isCategoryAvailable (category-index scorecard numOfRolls)
-  (print "Category Available ko ho hai")
+  ;(print "Category Available ko ho hai")
   ;(print (first scorecard))
   ;(print "Category Available ko ho hai")
   ;(print (second scorecard))

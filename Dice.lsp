@@ -167,15 +167,24 @@
 
   ; computer dice functions
   (defun findMatchingIndices (dice match-count)
+  (labels ((helper (remaining-dice seen-values)
+             (cond
+               ((null remaining-dice) nil)  ;; If the list is empty, return nil
+               (t 
+                (let* ((value (car remaining-dice))
+                       (occurrences (countOccurrences value dice)))
+                  (cond
+                    ;; If occurrences are greater than or equal to match-count, collect only the first match-count indices
+                    ((and (>= occurrences match-count) (not (member value seen-values)))
+                     (collect-first-n (findIndices value dice 1) match-count))
+                    ;; Otherwise, add value to seen and continue searching
+                    (t (helper (removeValue value remaining-dice) (cons value seen-values)))))))))
+    (helper dice nil)))
+
+(defun collect-first-n (lst n)
   (cond
-    ((null dice) nil)  ;; If the list is empty, return nil
-    (t 
-     (let ((value (car dice))
-           (occurrences (countOccurrences (car dice) dice)))
-       (cond
-         ((= occurrences match-count) 
-          (findIndices value dice 1))
-         (t (findMatchingIndices (removeValue value dice) match-count)))))))
+    ((or (null lst) (= n 0)) nil)  ;; Base case: if the list is empty or we've collected n elements, return nil
+    (t (cons (car lst) (collect-first-n (cdr lst) (1- n))))))  ;; Otherwise, collect the first element and continue
 
 (defun countOccurrences (value dice)
   (cond
@@ -205,6 +214,7 @@
 
 (defun giveTwoOfaKindIndices (dice)
   (findMatchingIndices dice 2))
+
 
 
   (defun custom-remove (lst items-to-remove)
@@ -338,3 +348,17 @@
     ((null dice) nil)
     ((= (car dice) element) current-index)
     (t (findIndex element (cdr dice) (1+ current-index)))))
+
+
+
+
+
+
+; for Displaying the computer kept dice message
+(defun get-dice-values-at-indices (dice indices)
+  (cond
+    ;; Base case: if the indices list is empty, return an empty list
+    ((null indices) nil)
+    ;; Recursive case: get the dice value at the current index and recurse on the rest of the indices
+    (t (cons (nth (1- (car indices)) dice)
+             (get-dice-values-at-indices dice (cdr indices))))))

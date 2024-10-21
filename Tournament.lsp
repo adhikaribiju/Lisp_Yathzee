@@ -52,6 +52,7 @@
      (display-winner scorecard))  ;; Print the game-over message
     ;; Otherwise, keep playing the next round
     (t
+      ;(format t "Lowest Score is from: ~a" (calculate-total-scores scorecard) )
       (let* ((round_num (or round_num 1))  ;; Fallback to 1 if round_num is NIL
         (player_id (calculate-total-scores scorecard))  ;; Get the player with the lowest score
             (updated_round_num (update-round-num round_num))  ;; Increment the round number
@@ -82,6 +83,9 @@
 
 (defun display-winner (scorecard)
     "Display the winner of the game based on the final scorecard."
+    (format t "~%~%Game Over~%")
+    (display-scorecard scorecard)
+
     (let* ((total-scores (total-scores scorecard))
              (human-score (first total-scores))
              (computer-score (second total-scores)))

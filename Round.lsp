@@ -2,25 +2,42 @@
 (load "Human.lsp")
 (load "Computer.lsp")
 
+;    ((isScorecardFilled scorecard)
+     ;(display-winner scorecard))  ;; Print the game-over message
+
 
 
 (defun playRound (scorecard player_id round)
+
   (cond
        ((/= round 1) (ask-save-and-exit scorecard round))
   )
   (format t "~%Round ~a~%" round)
   (cond
-    ;; Human starts first, then computer
-    ((= player_id 1)
-     (let* ((human-updated-scorecard (playHumanTurn scorecard round))  ;; Human plays, returns updated scorecard
-            (computer-updated-scorecard (playComputerTurn human-updated-scorecard round)))  ;; Computer plays on human-updated scorecard
-       computer-updated-scorecard))  ;; Return the final updated scorecard
+  ;; Human starts first, then computer
+  ((= player_id 1)
+   (let* ((human-updated-scorecard (playHumanTurn scorecard round)))  ;; Human plays, returns updated scorecard
+     (cond 
+       ;; Check if the scorecard is filled after the human's turn
+       ((isScorecardFilled human-updated-scorecard) 
+        human-updated-scorecard)  ;; Return the final updated scorecard if filled
+       
+       (t  ;; Otherwise, proceed to the computer's turn
+        (let ((computer-updated-scorecard (playComputerTurn human-updated-scorecard round)))
+          computer-updated-scorecard)))))  ;; Return the final updated scorecard
 
-    ;; Computer starts first, then human
-    (t
-     (let* ((computer-updated-scorecard (playComputerTurn scorecard round))  ;; Computer plays first
-            (human-updated-scorecard (playHumanTurn computer-updated-scorecard round)))  ;; Human plays on computer-updated scorecard
-       human-updated-scorecard))))  ;; Return the final updated scorecard
+  ;; Computer starts first, then human
+  (t
+   (let* ((computer-updated-scorecard (playComputerTurn scorecard round)))  ;; Computer plays, returns updated scorecard
+     (cond 
+       ;; Check if the scorecard is filled after the computer's turn
+       ((isScorecardFilled computer-updated-scorecard) 
+        computer-updated-scorecard)  ;; Return the final updated scorecard if filled
+       
+       (t  ;; Otherwise, proceed to the human's turn
+        (let ((human-updated-scorecard (playHumanTurn computer-updated-scorecard round)))
+          human-updated-scorecard))))))  ;; Return the final updated scorecard
+)  ;; Return the final updated scorecard
 
 
 ; Need a function that checks if the scorecard is full
@@ -32,7 +49,9 @@
 
 
 (defun playTurn(player_id)
+    (format t "~%~%-----------~%")   
     (format t "~a's turn~%" (get-player player_id))
+    (format t "~%-----------~%")   
 )
 
 ;; Serialization functions
