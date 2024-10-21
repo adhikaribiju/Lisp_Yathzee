@@ -367,7 +367,7 @@
 ; if list1 and list2 have completely unique elements, returns t, otherwise false
 (defun keptIndicesChecker (list1 list2)
   (cond
-    ((null list1) nil)  ;; Base case: if list1 is empty, return nil
-    ((member (car list1) list2) t)  ;; If the first element of list1 is in list2, return t
+    ((null list1) t)  ;; Base case: if list1 is empty, return t (no common elements found)
+    ((member (car list1) list2) nil)  ;; If an element of list1 is in list2, return nil
     (t (keptIndicesChecker (cdr list1) list2))))  ;; Recur with the rest of list1
 

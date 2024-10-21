@@ -311,7 +311,7 @@
   ;(print (second scorecard))
   ;(format t "ROll NO: ~a~%" numOfRolls)
 
-  (cond ((= numOfRolls 1) 
+  (cond ((>= numOfRolls 1) 
     (let ((category (nth (- category-index 1) scorecard)))
       (cond
         ((null (second category)) t)  ;; If the score is nil, return true (t)

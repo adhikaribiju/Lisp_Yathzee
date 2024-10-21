@@ -21,35 +21,43 @@
         )
         ;(print decision)
         (cond
-            ((= (car (last decision)) 1) (format t "~%DECIDED~%"))
-            ((= (car (last decision)) 0) (format t "~%Not DECIDED~%"))
-        )
+            ((= (car (last decision)) 1) (format t "~%DECIDED~%") (first (first decision)))
+            ((= (car (last decision)) 0) (format t "~%Not DECIDED~%")
+                      
+                ;((category (highestScoreCategory (available-categories dice))))
+                ;(format t "Computer rolled: ~{~a ~}~%" dice)
+                ;(format t "Highest Categories to Score: ~a~%" category)
+                
+                ; Updating the scorecard
+                ;(format t "Computer chose category ~a~%" category)
+                ;(display-scorecard scorecard) 
 
 
-        ;((category (highestScoreCategory (available-categories dice))))
-        ;(format t "Computer rolled: ~{~a ~}~%" dice)
-        ;(format t "Highest Categories to Score: ~a~%" category)
-        
-         ; Updating the scorecard
-        ;(format t "Computer chose category ~a~%" category)
-        ;(display-scorecard scorecard) 
+                ; scorecard -> (first (first (first decision)))
+                ; latest dice (2nd wala ho hai) -> (second (first decision))
+                ;(print decision)
+                ;(print (first (first decision)))
+                ;(print (second (second (first decision))))
+                ;(print (second (first decision)))
+                ;(print (highestScoreCategory (second (first decision)) scorecard))
+                (cond
+                    ((available-categories (second (first decision)) scorecard) ; if there is any scorable category on the dice
+                    (let* ( (newdice (second (first decision)))
+                            (category (highestScoreCategory newdice scorecard))
+                            (new-scorecard (scoreCategory scorecard newdice category 2 round)))
+                            (print newdice)
+                        new-scorecard))  ;; Return new-scorecard
+
+                    (t
+                    (print decision)
+                    (print "Nothing to score")
+                    (print (first (first decision)))
+                    ; (list has scorecard and decision only)
+                    (first (first decision))))
 
 
-        ; scorecard -> (first (first (first decision)))
-        ; latest dice (2nd wala ho hai) -> (second (first decision))
+))
 
-        (cond
-            ((second (second (first decision)))
-            (print "Crash Site")
-            (let* ( (newdice (second (first decision)))
-                    (category (highestScoreCategory newdice scorecard))
-                    (new-scorecard (scoreCategory scorecard newdice category 2 round)))
-                    (print newdice)
-                new-scorecard))  ;; Return new-scorecard
-
-            (t
-            (print "MUJI")
-            (first (first (first decision)))))
         ) ; Display the updated scorecard
     ;; will implement reroll functions later on.
 )
@@ -71,7 +79,7 @@
     ;; Base case: if categories is empty, return the current best category
     ((null categories) current-best)
     ;; If the score of the current category is higher than the current best, recurse with the current category
-    ((> (getCategoryScore dice (car categories))
+    ((>= (getCategoryScore dice (car categories))
          (getCategoryScore dice current-best))
      (findHighestCategory (cdr categories) dice (car categories)))
     ;; Otherwise, recurse with the current best category unchanged
@@ -107,10 +115,11 @@
                         ((and (numberp (first (first NewScorecard)))
                             (= (first (first NewScorecard)) 2))
                             (print "DICES KEPT")
-                            ; (print (subseq NewScorecard 1 2)) ;scorecard
+                            (print NewScorecard)
+                             ;(print (subseq NewScorecard 1 2)) ;scorecard
                             ;(print (car (last (rest NewScorecard)))) ; dicesIndicesToKeep
                             ; (print (first (rest (rest NewScorecard)))) ; dice
-                        (computerDecide (subseq NewScorecard 1 2) (first (rest (rest NewScorecard))) (+ numOfRolls 1) isDecided round_no (car (last (rest NewScorecard))))
+                        (computerDecide (list (second NewScorecard) (third NewScorecard)) (first (rest (rest NewScorecard))) (+ numOfRolls 1) isDecided round_no (car (last (rest NewScorecard))))
                         )
                         (t 
                             (cond
@@ -270,7 +279,7 @@
 
 ;Check if three of a kind, four of a kind available, if yes -> Needs rerolling
 (format t "Yahtzee CHECK~%")
-    ;(print scorecard)
+    (print (first scorecard))
     (cond
     ((isCategoryAvailable 12 scorecard numOfRolls)   ;; if Yahtzee is available to score 
         (format t "Yahtzee Available cha!~%")
@@ -287,20 +296,28 @@
                         (format t "Computer needs to try yatzee~%")
                          (cond
                             ((four-of-a-kind-p dice)
-                            (print "LA MUji")
-                            (let* ((indicesToKeep (giveFourOfaKindIndices dice))
+                            (print "LA Mz")
+                            (let* ((indicesToKeep (giveFourOfaKindIndices dice)))
+                            (cond 
+                                ((and (not (null keptDicesInd)) (keptIndicesChecker keptDicesInd indicesToKeep))
+                                (let* ((indicesToReroll (custom-remove '(1 2 3 4 5) keptDicesInd))
+                                        (val1 (displayKeepMsg dice keptDicesInd))
+                                        (newDice (doReRoll dice indicesToReroll)))
+                                (list scorecard newDice)))
+                                (t 
+                                    (let* ((indicesToKeep (giveFourOfaKindIndices dice))
                                     (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
                                     (val1 (displayKeepMsg dice indicesToKeep))
                                     (newDice (doReRoll dice indicesToReroll)))
-                                    (format t "New dice ~{~a~^ ~}~%" newDice )
-                                (list scorecard newDice)  ))
+                                    (format t "New dice ~{~a~^ ~}~%" newDice)
+                                    (cons '(2) (list scorecard newDice indicesToKeep)))))))
 
                             (t
                             (cond
                                 ((three-of-a-kind-p dice)
                                 (let* ((indicesToKeep (giveThreeOfaKindIndices dice)))
                                 (cond 
-                                    ((and (not (null keptDicesInd)) (keptIndicesChecker dice indicesToKeep))
+                                    ((and (not (null keptDicesInd)) (keptIndicesChecker keptDicesInd indicesToKeep))
                                     (let* ((indicesToReroll (custom-remove '(1 2 3 4 5) keptDicesInd))
                                             (val1 (displayKeepMsg dice keptDicesInd))
                                             (newDice (doReRoll dice indicesToReroll)))
@@ -311,20 +328,26 @@
                                         (val1 (displayKeepMsg dice indicesToKeep))
                                         (newDice (doReRoll dice indicesToReroll)))
                                         (format t "New dice ~{~a~^ ~}~%" newDice)
-                                    (list scorecard newDice)  )))))
+                                    (cons '(2) (list scorecard newDice indicesToKeep))  )))))
 
                                 (t
                                 (cond
                                     ((two-of-a-kind-p dice)
                                     ;(print "You are right")
-                                    (let* ((indicesToKeep (giveTwoOfaKindIndices dice))
+                                    (let* ((indicesToKeep (giveTwoOfaKindIndices dice)))
+                                    (cond 
+                                        ((and (not (null keptDicesInd)) (keptIndicesChecker keptDicesInd indicesToKeep))
+                                        (let* ((indicesToReroll (custom-remove '(1 2 3 4 5) keptDicesInd))
+                                                (val1 (displayKeepMsg dice keptDicesInd))
+                                                (newDice (doReRoll dice indicesToReroll)))
+                                        (list scorecard newDice)))
+                                        (t 
+                                            (let* ((indicesToKeep (giveTwoOfaKindIndices dice))
                                             (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
                                             (val1 (displayKeepMsg dice indicesToKeep))
                                             (newDice (doReRoll dice indicesToReroll)))
-                                            (print indicesToKeep)
-                                            (print indicesToReroll)
                                             (format t "New dice ~{~a~^ ~}~%" newDice)
-                                        (cons '(2) (list scorecard newDice indicesToKeep))  ))
+                                            (cons '(2) (list scorecard newDice indicesToKeep)))))) )
 
                                     (t
                                         (format t "Sequential CHECK~%")
@@ -332,7 +355,7 @@
                                         (cond
                                         ((isCategoryAvailable 11 scorecard numOfRolls)   ;; if Five Straight is available to score 
                                             (format t "Five Straight Available cha!~%")
-                                            (print dice)
+                                            ;(print dice)
                                                     (cond 
                                                         ((five-straight-p dice) ; condition
                                                         (let* ((new-scorecard (scoreCategory scorecard dice 11 2 round_no)) (returnVal (list new-scorecard dice)))
@@ -351,7 +374,7 @@
                                                                         (val1 (displayKeepMsg dice indicesToKeep))
                                                                         (newDice (doReRoll dice indicesToReroll)))
                                                                         (format t "New dice ~{~a~^ ~}~%" newDice )
-                                                                    (list scorecard newDice)  ))
+                                                                    (cons '(2) (list scorecard newDice indicesToKeep))  ))
 
                                                                 (t
                                                                 (cond
@@ -364,7 +387,7 @@
                                                                             (val1 (displayKeepMsg dice indicesToKeep))
                                                                             (newDice (doReRoll dice indicesToReroll)))
                                                                             (format t "New dice ~{~a~^ ~}~%" newDice)
-                                                                        (list scorecard newDice)  ))
+                                                                        (cons '(2) (list scorecard newDice indicesToKeep))  ))
 
                                                                     (t
                                                                     (list scorecard dice)))))
@@ -398,7 +421,7 @@
                                                                             (val1 (displayKeepMsg dice indicesToKeep))
                                                                             (newDice (doReRoll dice indicesToReroll)))
                                                                             (format t "New dice ~{~a~^ ~}~%" newDice)
-                                                                        (list scorecard newDice)  ))
+                                                                        (cons '(2) (list scorecard newDice indicesToKeep))  ))
 
                                                                     (t
                                                                     (cond
@@ -409,7 +432,8 @@
                                                                                 (val1 (displayKeepMsg dice indicesToKeep))
                                                                                 (newDice (doReRoll dice indicesToReroll)))
                                                                                 (format t "New dice ~{~a~^ ~}~%" newDice)
-                                                                            (list scorecard newDice)  ))
+                                                                                  (print "Yeta hai")
+                                                                            (cons '(2) (list scorecard newDice indicesToKeep))  ))
 
                                                                         (t
                                                                         (format t "NOTHING For Sequence Generation BRO~%") (list scorecard dice)))))
@@ -426,6 +450,7 @@
                                                     (print dice)
                                                             (cond 
                                                                 ((full-house-p dice) ; condition
+                                                                 ; (print "how?")
                                                                 (let* ((new-scorecard (scoreCategory scorecard dice 9 2 round_no)) (returnVal (list new-scorecard dice)))
                                                                         ;(display-scorecard new-scorecard)
                                                                         (format t "Full House Scored!~%")
@@ -478,7 +503,7 @@
                                     (val1 (displayKeepMsg dice indicesToKeep))
                                     (newDice (doReRoll dice indicesToReroll)))
                                     (format t "New dice ~{~a~^ ~}~%" newDice )
-                                (list scorecard newDice)  ))
+                                    (cons '(2) (list scorecard newDice indicesToKeep))  ))
 
                             (t
                             (cond
@@ -491,7 +516,7 @@
                                         (val1 (displayKeepMsg dice indicesToKeep))
                                         (newDice (doReRoll dice indicesToReroll)))
                                         (format t "New dice ~{~a~^ ~}~%" newDice)
-                                    (list scorecard newDice)  ))
+                                        (cons '(2) (list scorecard newDice indicesToKeep))  ))
 
                                 (t
                                 (cond
@@ -502,7 +527,7 @@
                                             (val1 (displayKeepMsg dice indicesToKeep))
                                             (newDice (doReRoll dice indicesToReroll)))
                                             (format t "New dice ~{~a~^ ~}~%" newDice)
-                                        (list scorecard newDice)  ))
+                                            (cons '(2) (list scorecard newDice indicesToKeep))  ))
 
                                     (t
                                     (format t "NOTHING For Sequence Generation BRO~%") (list scorecard dice)))))))
@@ -536,7 +561,8 @@
                                         (val1 (displayKeepMsg dice indicesToKeep))
                                         (newDice (doReRoll dice indicesToReroll)))
                                         (format t "New dice ~{~a~^ ~}~%" newDice)
-                                    (list scorecard newDice)  ))
+                                        
+                                    (cons '(2) (list scorecard newDice indicesToKeep))  ))
 
                                 (t
                                 (cond
@@ -547,7 +573,7 @@
                                             (val1 (displayKeepMsg dice indicesToKeep))
                                             (newDice (doReRoll dice indicesToReroll)))
                                             (format t "New dice ~{~a~^ ~}~%" newDice)
-                                        (list scorecard newDice)  ))
+                                        (cons '(2) (list scorecard newDice indicesToKeep))  ))
 
                                     (t
                                     (format t "NOTHING For Sequence Generation BRO~%") (list scorecard dice)))))
@@ -580,7 +606,7 @@
         (format t "Full House Available cha!~%")
         (print dice)
                 (cond 
-                    ((four-straight-p dice) ; condition
+                    ((full-house-p dice) ; condition
                     (let* ((new-scorecard (scoreCategory scorecard dice 9 2 round_no)) (returnVal (list new-scorecard dice)))
                             ;(display-scorecard new-scorecard)
                             (format t "Full House Scored!~%")
@@ -589,51 +615,67 @@
                     )
                     (t 
                         (format t "Seeing if full house possible~%")
-                         (cond
-                            ((two-of-a-kind-p dice)
-                                (cond
-                                    ((checkUniqueAmongPairs dice) 
-                                        (let* ((indicesToReroll (list (checkUniqueAmongPairs dice)))
-                                                (indicesToKeep (custom-remove '(1 2 3 4 5) indicesToReroll))
-                                                (val1 (displayKeepMsg dice indicesToKeep))
-                                                (newDice (doReRoll dice indicesToReroll)))
-                                                (format t "New dice ~{~a~^ ~}~%" newDice)
-                                            (list scorecard newDice))                                      
-                                    )
+                          (cond
+                                ((three-of-a-kind-p dice)
+                                (let* ((indicesToKeep (giveThreeOfaKindIndices dice)))
+                                (cond 
+                                    ((and (not (null keptDicesInd)) (keptIndicesChecker keptDicesInd indicesToKeep))
+                                    (let* ((indicesToReroll (custom-remove '(1 2 3 4 5) keptDicesInd))
+                                            (val1 (displayKeepMsg dice keptDicesInd))
+                                            (newDice (doReRoll dice indicesToReroll)))
+                                    (list scorecard newDice)))
                                     (t 
-                                        (let* ((indicesToKeep (giveTwoOfaKindIndices dice))
-                                            (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
-                                            (val1 (displayKeepMsg dice indicesToKeep))
-                                            (newDice (doReRoll dice indicesToReroll)))
-                                            (format t "New dice ~{~a~^ ~}~%" newDice)
-                                        (list scorecard newDice)  )
-                                    )
-                                )
-                             )
-
-                            (t
-                                (cond
-                                    ((four-of-a-kind-p dice)
-                                    (let* ((indicesToKeep (giveFourOfaKindIndices dice))
-                                            (rest indicesToKeep) ; euta indices hataidim
-                                            (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
-                                            (val1 (displayKeepMsg dice indicesToKeep))
-                                            (newDice (doReRoll dice indicesToReroll)))
-                                            (format t "New dice ~{~a~^ ~}~%" newDice)
-                                        (list scorecard newDice)  ))
-
-                                    (t
-                                        (cond
-                                        ((three-of-a-kind-p dice)
                                         (let* ((indicesToKeep (giveThreeOfaKindIndices dice))
+                                        (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
+                                        (val1 (displayKeepMsg dice indicesToKeep))
+                                        (newDice (doReRoll dice indicesToReroll)))
+                                        (format t "New dice ~{~a~^ ~}~%" newDice)
+                                    (cons '(2) (list scorecard newDice indicesToKeep))  )))))
+
+                                (t
+                                  (cond
+                                        ((four-of-a-kind-p dice)
+                                        (let* ((indicesToKeep (giveFourOfaKindIndices dice)))
+                                        (cond 
+                                            ((and (not (null keptDicesInd)) (keptIndicesChecker keptDicesInd indicesToKeep))
+                                            (let* ((indicesToReroll (custom-remove '(1 2 3 4 5) keptDicesInd))
+                                                    (val1 (displayKeepMsg dice keptDicesInd))
+                                                    (newDice (doReRoll dice indicesToReroll)))
+                                            (list scorecard newDice)))
+                                            (t 
+                                                (let* ((indicesToKeep (giveFourOfaKindIndices dice))
                                                 (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
                                                 (val1 (displayKeepMsg dice indicesToKeep))
                                                 (newDice (doReRoll dice indicesToReroll)))
                                                 (format t "New dice ~{~a~^ ~}~%" newDice)
-                                            (list scorecard newDice)  ))
+                                                (cons '(2) (list scorecard newDice indicesToKeep)))))))
 
                                         (t
-                                        (format t "Full house possible vayena~%")(list scorecard dice)))))))
+                                            (cond
+                                            ((two-of-a-kind-p dice)
+                                                (cond
+                                                    ((checkUniqueAmongPairs dice) 
+                                                        (let* ((indicesToReroll (list (checkUniqueAmongPairs dice)))
+                                                                (indicesToKeep (custom-remove '(1 2 3 4 5) indicesToReroll))
+                                                                (val1 (displayKeepMsg dice indicesToKeep))
+                                                                (newDice (doReRoll dice indicesToReroll)))
+                                                                (format t "New dice ~{~a~^ ~}~%" newDice)
+                                                                ;(print "Yetaaaa??")
+                                                            (cons '(2) (list scorecard newDice indicesToKeep)))                                      
+                                                    )
+                                                    (t 
+                                                        (let* ((indicesToKeep (giveTwoOfaKindIndices dice))
+                                                            (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
+                                                            (val1 (displayKeepMsg dice indicesToKeep))
+                                                            (newDice (doReRoll dice indicesToReroll)))
+                                                            (format t "New dice ~{~a~^ ~}~%" newDice)
+                                                        (cons '(2) (list scorecard newDice indicesToKeep))  )
+                                                    )
+                                                )
+                                              )
+
+                                            (t
+                                            (format t "Full house possible vayena~%")(list scorecard dice)))))))
 
                         ; check if dice has four of a kind, if yes reroll the one dice which is not unique
                         ; check if dice has three of a kind, if yes reroll the two dices which are not unique
@@ -660,16 +702,24 @@
                         (t
                             (cond
                             ((three-of-a-kind-p dice)
-                                (let* ((indicesToKeep (giveThreeOfaKindIndices dice))
+                                (let* ((indicesToKeep (giveThreeOfaKindIndices dice)))
+                                (cond 
+                                    ((and (not (null keptDicesInd)) (keptIndicesChecker keptDicesInd indicesToKeep))
+                                    (let* ((indicesToReroll (custom-remove '(1 2 3 4 5) keptDicesInd))
+                                            (val1 (displayKeepMsg dice keptDicesInd))
+                                            (newDice (doReRoll dice indicesToReroll)))
+                                    (list scorecard newDice)))
+                                    (t 
+                                        (let* ((indicesToKeep (giveThreeOfaKindIndices dice))
                                         (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
                                         (val1 (displayKeepMsg dice indicesToKeep))
                                         (newDice (doReRoll dice indicesToReroll)))
                                         (format t "New dice ~{~a~^ ~}~%" newDice)
-                                    (list scorecard newDice)  ))
+                                    (cons '(2) (list scorecard newDice indicesToKeep))  )))))
 
                             (t
                             (list scorecard dice)))) ))
-                (t
+                        (t
                         (cond
                             ((isCategoryAvailable 7 scorecard numOfRolls)  
                                 (cond
@@ -685,7 +735,7 @@
                                                     (val1 (displayKeepMsg dice indicesToKeep))
                                                     (newDice (doReRoll dice indicesToReroll)))
                                                     (format t "New dice ~{~a~^ ~}~%" newDice)
-                                                (list scorecard newDice)  )
+                                                (cons '(2) (list scorecard newDice indicesToKeep))  )
                                             )) )
                                             (t
                                                 (list scorecard dice)

@@ -1,0 +1,19 @@
+(
+  5
+
+  (
+     (4 Computer 1)
+     (4 Human 1)
+     (9 Computer 2)
+     (0)
+     (15 Computer 4)
+     (12 Human 4)
+     (0)
+     (0)
+     (25 Human 3)
+     (30 Human 2)
+     (40 Computer 3)
+     (0)
+  )
+)
+    
