@@ -100,15 +100,27 @@
                 ((and (numberp (first (first NewScorecard)))
                     (= (first (first NewScorecard)) 1))
                     ;(print "Yeta HORA?")
-                (computerDecide (rest NewScorecard) (car (last (rest NewScorecard))) (+ numOfRolls 1) 1 round_no keptDicesInd)
+                    (computerDecide (rest NewScorecard) (car (last (rest NewScorecard))) (+ numOfRolls 1) 1 round_no keptDicesInd)
                 )
                 (t 
                     (cond
-                        ;((null NewScorecard) (computerDecide scorecard dice (+ numOfRolls 1) isDecided round_no keptDicesInd))
-                        ;(t (computerDecide NewScorecard dice 1 1 round_no keptDicesInd)) ;; scorecard is updated and decision made
-                        ((second NewScorecard) (computerDecide NewScorecard (car (last NewScorecard)) (+ numOfRolls 1) isDecided round_no keptDicesInd))
-                        (t (computerDecide scorecard dice (+ numOfRolls 1) isDecided round_no keptDicesInd))
-            )))
+                        ((and (numberp (first (first NewScorecard)))
+                            (= (first (first NewScorecard)) 2))
+                            (print "DICES KEPT")
+                            ; (print (subseq NewScorecard 1 2)) ;scorecard
+                            ;(print (car (last (rest NewScorecard)))) ; dicesIndicesToKeep
+                            ; (print (first (rest (rest NewScorecard)))) ; dice
+                        (computerDecide (subseq NewScorecard 1 2) (first (rest (rest NewScorecard))) (+ numOfRolls 1) isDecided round_no (car (last (rest NewScorecard))))
+                        )
+                        (t 
+                            (cond
+                                ;((null NewScorecard) (computerDecide scorecard dice (+ numOfRolls 1) isDecided round_no keptDicesInd))
+                                ;(t (computerDecide NewScorecard dice 1 1 round_no keptDicesInd)) ;; scorecard is updated and decision made
+                                ((second NewScorecard) (computerDecide NewScorecard (car (last NewScorecard)) (+ numOfRolls 1) isDecided round_no keptDicesInd))
+                                (t (computerDecide scorecard dice (+ numOfRolls 1) isDecided round_no keptDicesInd))
+                            )
+                    ))
+            ))
             
             )
 
@@ -286,12 +298,20 @@
                             (t
                             (cond
                                 ((three-of-a-kind-p dice)
-                                (let* ((indicesToKeep (giveThreeOfaKindIndices dice))
+                                (let* ((indicesToKeep (giveThreeOfaKindIndices dice)))
+                                (cond 
+                                    ((and (not (null keptDicesInd)) (keptIndicesChecker dice indicesToKeep))
+                                    (let* ((indicesToReroll (custom-remove '(1 2 3 4 5) keptDicesInd))
+                                            (val1 (displayKeepMsg dice keptDicesInd))
+                                            (newDice (doReRoll dice indicesToReroll)))
+                                    (list scorecard newDice)))
+                                    (t 
+                                        (let* ((indicesToKeep (giveThreeOfaKindIndices dice))
                                         (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
                                         (val1 (displayKeepMsg dice indicesToKeep))
                                         (newDice (doReRoll dice indicesToReroll)))
                                         (format t "New dice ~{~a~^ ~}~%" newDice)
-                                    (list scorecard newDice)  ))
+                                    (list scorecard newDice)  )))))
 
                                 (t
                                 (cond
@@ -304,7 +324,7 @@
                                             (print indicesToKeep)
                                             (print indicesToReroll)
                                             (format t "New dice ~{~a~^ ~}~%" newDice)
-                                        (list scorecard newDice)  ))
+                                        (cons '(2) (list scorecard newDice indicesToKeep))  ))
 
                                     (t
                                         (format t "Sequential CHECK~%")

@@ -362,3 +362,12 @@
     ;; Recursive case: get the dice value at the current index and recurse on the rest of the indices
     (t (cons (nth (1- (car indices)) dice)
              (get-dice-values-at-indices dice (cdr indices))))))
+
+
+; if list1 and list2 have completely unique elements, returns t, otherwise false
+(defun keptIndicesChecker (list1 list2)
+  (cond
+    ((null list1) nil)  ;; Base case: if list1 is empty, return nil
+    ((member (car list1) list2) t)  ;; If the first element of list1 is in list2, return t
+    (t (keptIndicesChecker (cdr list1) list2))))  ;; Recur with the rest of list1
+
