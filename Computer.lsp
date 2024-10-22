@@ -21,8 +21,8 @@
         )
         ;(print decision)
         (cond
-            ((= (car (last decision)) 1) (format t "~%DECIDED~%") (first (first decision)))
-            ((= (car (last decision)) 0) (format t "~%Not DECIDED~%")
+            ((= (car (last decision)) 1)  (first (first decision)))
+            ((= (car (last decision)) 0) 
                       
                 ;((category (highestScoreCategory (available-categories dice))))
                 ;(format t "Computer rolled: ~{~a ~}~%" dice)
@@ -45,13 +45,13 @@
                     (let* ( (newdice (second (first decision)))
                             (category (highestScoreCategory newdice scorecard))
                             (new-scorecard (scoreCategory scorecard newdice category 2 round)))
-                            (print newdice)
+                            ;(print newdice)
                         new-scorecard))  ;; Return new-scorecard
 
                     (t
-                    (print decision)
-                    (print "Nothing to score")
-                    (print (first (first decision)))
+                    ;(print decision)
+                    ;(print "Nothing to score")
+                    ;(print (first (first decision)))
                     ; (list has scorecard and decision only)
                     (first (first decision))))
 
@@ -114,8 +114,8 @@
                     (cond
                         ((and (numberp (first (first NewScorecard)))
                             (= (first (first NewScorecard)) 2))
-                            (print "DICES KEPT")
-                            (print NewScorecard)
+                            ;(print "DICES KEPT")
+                            ;(print NewScorecard)
                              ;(print (subseq NewScorecard 1 2)) ;scorecard
                             ;(print (car (last (rest NewScorecard)))) ; dicesIndicesToKeep
                             ; (print (first (rest (rest NewScorecard)))) ; dice
@@ -188,7 +188,7 @@
 
 
 (defun findPattern (scorecard dice round_no keptDicesInd numOfRolls)
-  (format t "PUGEA~%")
+  ;(format t "PUGEA~%")
   ;(print scorecard)
     (format t "Num of Rolls ~a~% " numOfRolls)
     (format t "Computer rolled: ~{~a ~}~%" dice)
@@ -196,16 +196,16 @@
         (cond
             ((= (isLowerSectionFilled (first scorecard)) 0)
             ;(print scorecard)
-            (format t "Lower section not filled~%")
+            ;(format t "Lower section not filled~%")
                 (isOfAKind (first scorecard) dice round_no keptDicesInd numOfRolls)
             )  ; Return scorecard after printing
             (t 
                 (cond 
                 ((= (isUpperSectionFilled (first scorecard)) 0)
-                    (format t "Lower section filled~%")
+                    ;(format t "Lower section filled~%")
                     (tryUpperSectionFill (first scorecard) dice round_no keptDicesInd numOfRolls))  ; Return scorecard after printing
                 (t 
-                    (format t "Upper section filled~%")
+                    ;(format t "Upper section filled~%")
                     ;(checkSameKind scorecard dice)
                 ;(checkSequential scorecard dice)
                     (list (first scorecard) dice)))))               
@@ -213,23 +213,23 @@
             
             (t 
                 (cond
-                    ((= (isLowerSectionFilled scorecard) 0)
-                    (print scorecard)
-                    (format t "Lower section not filled~%")
+                  ((= (isLowerSectionFilled scorecard) 0)
+            ;        (print scorecard)
+            ;        (format t "Lower section not filled~%")
                         (isOfAKind scorecard dice round_no keptDicesInd numOfRolls)
                     )  ; Return scorecard after printing
                     (t 
                     (cond 
                     ((= (isUpperSectionFilled scorecard) 0)
-                        (format t "Lower section filled~%")
+                        ;(format t "Lower section filled~%")
                         (tryUpperSectionFill scorecard dice round_no keptDicesInd numOfRolls))  ; Return scorecard after printing
                     (t 
-                        (format t "Upper section filled~%")
-                        ;(checkSameKind scorecard dice)
-                    ;(checkSequential scorecard dice)
+            ;            (format t "Upper section filled~%")
+                    ;(checkSameKind scorecard dice)
+            ;        (checkSequential scorecard dice)
                         (list scorecard dice)))); Return scorecard after printing
                     )
-  )
+            )
     )
 )  
 
@@ -278,25 +278,26 @@
 ; if full house and it is available, score it
 
 ;Check if three of a kind, four of a kind available, if yes -> Needs rerolling
-(format t "Yahtzee CHECK~%")
-    (print (first scorecard))
+;(format t "Yahtzee CHECK~%")
+    ;(print (first scorecard))
     (cond
     ((isCategoryAvailable 12 scorecard numOfRolls)   ;; if Yahtzee is available to score 
-        (format t "Yahtzee Available cha!~%")
-        (print dice)
+        ;(format t "Yahtzee Available cha!~%")
+        ;(print dice)
                 (cond 
                     ((yahtzee-p dice) ; condition
                     (let* ((new-scorecard (scoreCategory scorecard dice 12 2 round_no)) (returnVal (list new-scorecard dice)))
                     ;(display-scorecard new-scorecard)
-                    (format t "Yahtzee Scored!~%")
+                    ;(format t "Yahtzee Scored!~%")
+                    ;(print returnVal)
                     (cons '(1) returnVal)
                     )
                     )
                     (t 
-                        (format t "Computer needs to try yatzee~%")
+                        ;(format t "Computer needs to try yatzee~%")
                          (cond
                             ((four-of-a-kind-p dice)
-                            (print "LA Mz")
+                            ;(print "LA Mz")
                             (let* ((indicesToKeep (giveFourOfaKindIndices dice)))
                             (cond 
                                 ((and (not (null keptDicesInd)) (keptIndicesChecker keptDicesInd indicesToKeep))
@@ -350,11 +351,11 @@
                                             (cons '(2) (list scorecard newDice indicesToKeep)))))) )
 
                                     (t
-                                        (format t "Sequential CHECK~%")
+                                        ;(format t "Sequential CHECK~%")
                                         ;(print scorecard)
                                         (cond
                                         ((isCategoryAvailable 11 scorecard numOfRolls)   ;; if Five Straight is available to score 
-                                            (format t "Five Straight Available cha!~%")
+                                            ;(format t "Five Straight Available cha!~%")
                                             ;(print dice)
                                                     (cond 
                                                         ((five-straight-p dice) ; condition
@@ -365,7 +366,7 @@
                                                                 )
                                                         )
                                                         (t 
-                                                            (format t "Computer needs to try getting sequential%")
+                                                            ;(format t "Computer needs to try getting sequential%")
                                                             (cond
                                                                 ((four-straight-p dice)
                                                                 (let* ( (sequentialValues (isFourSequential dice))
@@ -380,7 +381,7 @@
                                                                 (cond
                                                                     ((isThreeSequential dice)
                                                                     ;(print "aye")
-                                                                    (print (isThreeSequential dice))
+                                                                    ;(print (isThreeSequential dice))
                                                                     (let* ((sequentialValues (isThreeSequential dice))
                                                                             (indicesToKeep (findIndicesOfSequence dice sequentialValues))
                                                                             (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
@@ -395,14 +396,14 @@
                                                     )
                                         )
                                         (t 
-                                        (format t "No Five Straight Available!~%")
-                                        (format t "Check Four Straight")
+                                        ;(format t "No Five Straight Available!~%")
+                                        ;(format t "Check Four Straight")
 
                                         (cond
 
                                         ((isCategoryAvailable 10 scorecard numOfRolls)   ;; if Four Straight is available to score 
                                             (format t "Four Straight Available cha!~%")
-                                            (print dice)
+                                            ;(print dice)
                                                     (cond 
                                                         ((four-straight-p dice) ; condition
                                                         (let* ((new-scorecard (scoreCategory scorecard dice 10 2 round_no)) (returnVal (list new-scorecard dice)))
@@ -426,28 +427,28 @@
                                                                     (t
                                                                     (cond
                                                                         ((isTwoSequential dice)
-                                                                        (let* ((sequentialValues (isThreeSequential dice))
+                                                                        (let* ((sequentialValues (isTwoSequential dice))
                                                                                 (indicesToKeep (findIndicesOfSequence dice sequentialValues))
                                                                                 (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
                                                                                 (val1 (displayKeepMsg dice indicesToKeep))
                                                                                 (newDice (doReRoll dice indicesToReroll)))
                                                                                 (format t "New dice ~{~a~^ ~}~%" newDice)
-                                                                                  (print "Yeta hai")
+                                                                                  ;(print "Yeta hai")
                                                                             (cons '(2) (list scorecard newDice indicesToKeep))  ))
 
                                                                         (t
-                                                                        (format t "NOTHING For Sequence Generation BRO~%") (list scorecard dice)))))
+                                                                        (list scorecard dice)))))
 
                                                         )
                                                     )
                                             )
                                             (t 
-                                            (format t "No Seuence~%")
-                                            (format t "Check Full House")
+                                            ;(format t "No Seuence~%")
+                                            ;(format t "Check Full House")
                                                 (cond
                                                 ((isCategoryAvailable 9 scorecard numOfRolls)   ;; if Full House is available to score 
                                                     (format t "Full House Available cha!~%")
-                                                    (print dice)
+                                                    ;print dice)
                                                             (cond 
                                                                 ((full-house-p dice) ; condition
                                                                  ; (print "how?")
@@ -463,7 +464,7 @@
                                                             )
                                                 )
                                                 (t 
-                                                (format t "No Yahtzee no Seq and no Full House!~%")
+                                                ;(format t "No Yahtzee no Seq and no Full House!~%")
                                                     (list scorecard dice)
                                                 ))
                                     ))))
@@ -477,14 +478,14 @@
                 )
      )
     (t 
-     (format t "No Yahtzee!~%")
+     ;(format t "No Yahtzee!~%")
     
-    (format t "Sequential CHECK~%")
+    ;(format t "Sequential CHECK~%")
     ;(print scorecard)
     (cond
     ((isCategoryAvailable 11 scorecard numOfRolls)   ;; if Five Straight is available to score 
-        (format t "Five Straight Available cha!~%")
-        (print dice)
+        ;(format t "Five Straight Available cha!~%")
+        ;(print dice)
                 (cond 
                     ((five-straight-p dice) ; condition
                     (let* ((new-scorecard (scoreCategory scorecard dice 11 2 round_no)) (returnVal (list new-scorecard dice)))
@@ -494,7 +495,7 @@
                             )
                     )
                     (t 
-                        (format t "Computer needs to try getting sequential%")
+                        ;(format t "Computer needs to try getting sequential%")
                          (cond
                             ((isFourSequential dice)
                             (let* ( (sequentialValues (isFourSequential dice))
@@ -508,8 +509,8 @@
                             (t
                             (cond
                                 ((isThreeSequential dice)
-                                (print "aye")
-                                (print (isThreeSequential dice))
+                                ;(print "aye")
+                                ;(print (isThreeSequential dice))
                                 (let* ((sequentialValues (isThreeSequential dice))
                                         (indicesToKeep (findIndicesOfSequence dice sequentialValues))
                                         (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
@@ -521,7 +522,7 @@
                                 (t
                                 (cond
                                     ((isTwoSequential dice)
-                                    (let* ((sequentialValues (isThreeSequential dice))
+                                    (let* ((sequentialValues (isTwoSequential dice))
                                             (indicesToKeep (findIndicesOfSequence dice sequentialValues))
                                             (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
                                             (val1 (displayKeepMsg dice indicesToKeep))
@@ -530,19 +531,19 @@
                                             (cons '(2) (list scorecard newDice indicesToKeep))  ))
 
                                     (t
-                                    (format t "NOTHING For Sequence Generation BRO~%") (list scorecard dice)))))))
+                                     (list scorecard dice)))))))
                     )
                 )
      )
     (t 
-     (format t "No Five Straight Available!~%")
-     (format t "Check Four Straight")
+     ;(format t "No Five Straight Available!~%")
+     ;(format t "Check Four Straight")
 
     (cond
 
     ((isCategoryAvailable 10 scorecard numOfRolls)   ;; if Four Straight is available to score 
-        (format t "Four Straight Available cha!~%")
-        (print dice)
+        ;(format t "Four Straight Available cha!~%")
+        ;(print dice)
                 (cond 
                     ((four-straight-p dice) ; condition
                     (let* ((new-scorecard (scoreCategory scorecard dice 10 2 round_no)) (returnVal (list new-scorecard dice)))
@@ -567,7 +568,7 @@
                                 (t
                                 (cond
                                     ((isTwoSequential dice)
-                                    (let* ((sequentialValues (isThreeSequential dice))
+                                    (let* ((sequentialValues (isTwoSequential dice))
                                             (indicesToKeep (findIndicesOfSequence dice sequentialValues))
                                             (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
                                             (val1 (displayKeepMsg dice indicesToKeep))
@@ -576,14 +577,14 @@
                                         (cons '(2) (list scorecard newDice indicesToKeep))  ))
 
                                     (t
-                                    (format t "NOTHING For Sequence Generation BRO~%") (list scorecard dice)))))
+                                     (list scorecard dice)))))
 
                     )
                 )
         )
         (t 
-        (format t "No Seuence~%")
-            (format t "Check Full House")
+        ;(format t "No Seuence~%")
+         ;   (format t "Check Full House")
 
         ; if full house is not scored yet, 
             ; check if 2 pairs of unique dice available for fourofakind
@@ -603,8 +604,8 @@
             ; check if three of a kind available, try getting four of a kind
 
     ((isCategoryAvailable 9 scorecard numOfRolls)   ;; if Full House is available to score 
-        (format t "Full House Available cha!~%")
-        (print dice)
+        ;(format t "Full House Available cha!~%")
+        ;(print dice)
                 (cond 
                     ((full-house-p dice) ; condition
                     (let* ((new-scorecard (scoreCategory scorecard dice 9 2 round_no)) (returnVal (list new-scorecard dice)))
@@ -614,7 +615,7 @@
                             )
                     )
                     (t 
-                        (format t "Seeing if full house possible~%")
+                        ;(format t "Seeing if full house possible~%")
                           (cond
                                 ((three-of-a-kind-p dice)
                                 (let* ((indicesToKeep (giveThreeOfaKindIndices dice)))
@@ -675,7 +676,7 @@
                                               )
 
                                             (t
-                                            (format t "Full house possible vayena~%")(list scorecard dice)))))))
+                                            (list scorecard dice)))))))
 
                         ; check if dice has four of a kind, if yes reroll the one dice which is not unique
                         ; check if dice has three of a kind, if yes reroll the two dices which are not unique
@@ -685,7 +686,7 @@
                 )
      )
     (t 
-     (format t "No Yahtzee no Seq and no Full House!~%")
+     ;(format t "No Yahtzee no Seq and no Full House!~%")
         ;if 4 of a kind available, check if available on dice, if not, check if 3 of a kind availble and roll the remaining dice
         ;if not, check if 3 of a kind available, check if 3 of a kind available on dice, if yes score it,
         ; if not, reroll all dice.
