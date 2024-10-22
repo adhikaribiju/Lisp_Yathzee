@@ -9,9 +9,7 @@
 
 (defun playRound (scorecard player_id round)
 
-  (cond
-       ((/= round 1) (ask-save-and-exit scorecard round))
-  )
+   ;(cond ((/= round 1) (ask-save-and-exit scorecard round)))
   (format t "~%Round ~a~%" round)
   (cond
   ;; Human starts first, then computer
@@ -20,10 +18,12 @@
      (cond 
        ;; Check if the scorecard is filled after the human's turn
        ((isScorecardFilled human-updated-scorecard) 
+        (cond ((/= round 1) (ask-save-and-exit scorecard round)))
         human-updated-scorecard)  ;; Return the final updated scorecard if filled
        
        (t  ;; Otherwise, proceed to the computer's turn
         (let ((computer-updated-scorecard (playComputerTurn human-updated-scorecard round)))
+               (cond ((/= round 1) (ask-save-and-exit scorecard round)))
           computer-updated-scorecard)))))  ;; Return the final updated scorecard
 
   ;; Computer starts first, then human
@@ -32,10 +32,12 @@
      (cond 
        ;; Check if the scorecard is filled after the computer's turn
        ((isScorecardFilled computer-updated-scorecard) 
+        (cond ((/= round 1) (ask-save-and-exit scorecard round)))
         computer-updated-scorecard)  ;; Return the final updated scorecard if filled
        
        (t  ;; Otherwise, proceed to the human's turn
         (let ((human-updated-scorecard (playHumanTurn computer-updated-scorecard round)))
+               (cond ((/= round 1) (ask-save-and-exit scorecard round)))
           human-updated-scorecard))))))  ;; Return the final updated scorecard
 )  ;; Return the final updated scorecard
 
@@ -57,7 +59,8 @@
 ;; Serialization functions
 (defun ask-save-and-exit (scorecard round)
   "Asks the user if they wish to save the game and exit."
-  (format t "Do you wish to save the game and exit? (Y/N): ")
+(terpri)  
+(format t "Do you wish to save the game and exit? (Y/N): ")
   (finish-output)
   (let ((input (read-line)))
     (cond

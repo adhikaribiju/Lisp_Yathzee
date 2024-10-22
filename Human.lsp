@@ -3,27 +3,31 @@
 
 (defun playHumanTurn (scorecard round)
  
+  (format t "~%Your turn~%")
   (display-scorecard scorecard)  ; Display current scorecard
+  (terpri)
 
-  (format t "Your turn~%")
+  
 
   (let ((dice (rollDice)))
     (format t "You rolled: ~{~a ~}~%" dice)
+    (let ((Categories (potentialCategories scorecard dice))))
+    (terpri)
     (format t "Available Categories to Score: ~a~%" (available-categories dice scorecard))
-
     (let ((final-dice (tryreroll dice scorecard 0 nil)))  ; Passing nil for kept-dice
       ; Display the final dice after rerolls
       (format t "Your final dice: ~{~a ~}~%" final-dice)
       
-      (cond ((not (null (available-categories dice scorecard)))
+      (cond ((not (null (available-categories final-dice scorecard)))
             (format t "Enter the category you wish to score: ")
             (finish-output)
 
             ; Read the category and update the scorecard
             (let* ((category (getCategoryNoFromUser scorecard final-dice))
                   (new-scorecard (scoreCategory scorecard final-dice category 1 round)))  ; Updating the scorecard
-              (format t "You chose category ~a~%" category)
-              (display-scorecard new-scorecard)  ; Display the updated scorecard
+              (terpri)
+              (format t "Category No. ~a scored~%" category)
+              ;(display-scorecard new-scorecard)  ; Display the updated scorecard
 
               new-scorecard)
             )
@@ -44,7 +48,7 @@
        (cond
          ;; Check if the number is in the available categories
          ((member userInput (available-categories dice scorecard))
-          (format t "User Entered ~a~% " userInput)
+          ;(format t "User Entered ~a~% " userInput)
           userInput)
          (t
           (format t "Invalid Category. Check Available Categories~%")
@@ -259,6 +263,9 @@
 
 ; Allows the user to reroll dice up to 2 times
 (defun tryreroll (dice scorecard reroll-count kept-dice)
+  ;(print reroll-count)
+  (cond ((= reroll-count 1) (let ((Categories (potentialCategories scorecard dice))) Categories)))
+  (terpri)
   (let ((helpAsked (humanHelp scorecard dice kept-dice reroll-count))))
   (cond
     ((< reroll-count 2)
@@ -285,7 +292,7 @@
           (tryreroll dice scorecard reroll-count kept-dice)))))
     (t
      ; No more rerolls allowed
-     (format t "You have used all your rerolls. You must stand now.~%")
+     (format t "~%You have used all your rerolls. You must stand now.~%")
      (format t "Available Categories to Score: ~a~%" (available-categories dice scorecard))
      dice)))  ; Return the current dice
 
@@ -698,8 +705,8 @@
     (cond
 
     ((isCategoryAvailable 9 scorecard numOfRolls)   ;; if Full House is available to score 
-        (format t "Full House Available cha!~%")
-        (print dice)
+        ;(format t "Full House Available cha!~%")
+        ;(print dice)
                 (cond 
                     ((full-house-p dice) ; condition
                     (format t "You should score Full House since it scores the most!~%")

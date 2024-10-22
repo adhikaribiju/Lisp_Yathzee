@@ -62,15 +62,18 @@
     (cond
       ((> user-roll computer-roll)
        (format t "~%You won!~%")
+        (sleep 1)
        ;(display-scorecard scorecard)
        (playTournament 1)) ;; Human starts the round
       ((< user-roll computer-roll)
        (format t "~%Computer won!~%")
+        (sleep 1)
        ;(display-scorecard scorecard)
        (playTournament 2) ;; computer starts the round
        )
       (t
        (format t "~%It's a draw! Rolling again...~%")
+      (sleep 1)
        (start-game)))
 )
 
@@ -84,6 +87,7 @@
             (scorecard (second result))
             (roundnum (- round-no 1)))
         (display-scorecard scorecard) ; Display the scorecard
+        (terpri)
         (displayLoadedGameScores scorecard) ;; Display the scoreboard
         ;(format t "Round number: ~A~%" round-no) ; Display the round number
         (playConsecutiveRound scorecard roundnum)

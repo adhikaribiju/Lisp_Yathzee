@@ -371,3 +371,4 @@
     ((member (car list1) list2) nil)  ;; If an element of list1 is in list2, return nil
     (t (keptIndicesChecker (cdr list1) list2))))  ;; Recur with the rest of list1
 
+  

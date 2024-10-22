@@ -1,3 +1,5 @@
+(load "Dice.lsp")
+
 (defun get-player (player-id)
   (cond ((equal player-id 1) "You")
         ((equal player-id 2) "Computer")
@@ -323,3 +325,38 @@
   )                    ;; Otherwise, return false (nil)
 
 ;
+
+
+
+
+
+(defun potentialCategories (scorecard dice)
+  (let* ((availCategories (available-categories dice scorecard)))
+    (format t "~%~%Potential Categories~%~%")
+    
+    ;; Check and display number categories if available using separate cond statements
+    (cond ((member 1 availCategories) (format t "Aces~%")))
+    (cond ((member 2 availCategories) (format t "Twos~%")))
+    (cond ((member 3 availCategories) (format t "Threes~%")))
+    (cond ((member 4 availCategories) (format t "Fours~%")))
+    (cond ((member 5 availCategories) (format t "Fives~%")))
+    (cond ((member 6 availCategories) (format t "Sixes~%")))
+    
+    ;; Additional category checks based on dice conditions
+    (cond
+     ((two-of-a-kind-p dice)
+      (cond
+       ((isCategoryAvailable 7 scorecard 1) (format t "Three of a Kind~%")))
+      (cond
+       ((isCategoryAvailable 8 scorecard 1) (format t "Four of a Kind~%")))
+      (cond
+       ((isCategoryAvailable 9 scorecard 1) (format t "Full House~%")))
+      (cond
+       ((isCategoryAvailable 12 scorecard 1) (format t "Yahtzee~%")))))
+    
+    (cond
+     ((isTwoSequential dice)
+      (cond
+       ((isCategoryAvailable 10 scorecard 1) (format t "Four Straight~%")))
+      (cond
+       ((isCategoryAvailable 11 scorecard 1) (format t "Five Straight~%")))))))

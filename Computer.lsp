@@ -3,7 +3,7 @@
 
 (defun playComputerTurn(scorecard round)
 
-    (format t "Computer's turn~%")
+    (format t "~%~%Computer's turn~%")
 
     ; the computer will roll the dice first
     ;; and score the highest available category if any
@@ -11,7 +11,7 @@
 
 
   (display-scorecard scorecard)  ; Display current scorecard
-
+  (terpri)
       ; Read the category and update the scorecard
       (let* 
         ((dice (rollDice))
@@ -46,11 +46,12 @@
                             (category (highestScoreCategory newdice scorecard))
                             (new-scorecard (scoreCategory scorecard newdice category 2 round)))
                             ;(print newdice)
+                            (format t "Computer scored on Category No:~a~%" category)
                         new-scorecard))  ;; Return new-scorecard
 
                     (t
                     ;(print decision)
-                    ;(print "Nothing to score")
+                    (format t "Nothing to score~%")
                     ;(print (first (first decision)))
                     ; (list has scorecard and decision only)
                     (first (first decision))))
@@ -190,7 +191,7 @@
 (defun findPattern (scorecard dice round_no keptDicesInd numOfRolls)
   ;(format t "PUGEA~%")
   ;(print scorecard)
-    (format t "Num of Rolls ~a~% " numOfRolls)
+    (format t "~%~%Roll No. ~a~% " numOfRolls)
     (format t "Computer rolled: ~{~a ~}~%" dice)
     (cond ((> numOfRolls 1)
         (cond
@@ -288,7 +289,7 @@
                     ((yahtzee-p dice) ; condition
                     (let* ((new-scorecard (scoreCategory scorecard dice 12 2 round_no)) (returnVal (list new-scorecard dice)))
                     ;(display-scorecard new-scorecard)
-                    ;(format t "Yahtzee Scored!~%")
+                    (format t "Yahtzee Scored!~%")
                     ;(print returnVal)
                     (cons '(1) returnVal)
                     )
@@ -447,7 +448,7 @@
                                             ;(format t "Check Full House")
                                                 (cond
                                                 ((isCategoryAvailable 9 scorecard numOfRolls)   ;; if Full House is available to score 
-                                                    (format t "Full House Available cha!~%")
+                                                    ;(format t "Full House Available cha!~%")
                                                     ;print dice)
                                                             (cond 
                                                                 ((full-house-p dice) ; condition
