@@ -2,14 +2,31 @@
 (load "Human.lsp")
 (load "Computer.lsp")
 
-;    ((isScorecardFilled scorecard)
-     ;(display-winner scorecard))  ;; Print the game-over message
 
-
-
+; *********************************************************************
+; Function Name: playRound
+; Purpose: This function allows a player to play a round of the Yahtzee game.
+; Parameters:
+; scorecard, a list of lists representing the scorecard. Each inner list contains the category number and the score for that category.
+; player_id, a number representing the player (1 for human, 2 for computer).
+; round, an number representing the current round number.
+; Return Value: The updated scorecard after the round has been played.
+; Algorithm:
+; 1. If the player is the human:
+;    a. Allow the human to take their turn.
+;    b. Check if the scorecard is filled after the human's turn.
+;    c. If the scorecard is filled, ask the user if they wish to save and exit.
+;    d. If the scorecard is not filled, proceed to the computer's turn.
+; 2. If the player is the computer:
+;   a. Allow the computer to take its turn.
+;   b. Check if the scorecard is filled after the computer's turn.
+;   c. If the scorecard is filled, ask the user if they wish to save and exit.
+;   d. If the scorecard is not filled, proceed to the human's turn.
+; 3. Return the updated scorecard.
+; Reference: none 
+; *********************************************************************
 (defun playRound (scorecard player_id round)
 
-   ;(cond ((/= round 1) (ask-save-and-exit scorecard round)))
   (format t "~%Round ~a~%" round)
   (cond
   ;; Human starts first, then computer
@@ -42,21 +59,41 @@
 )  ;; Return the final updated scorecard
 
 
-; Need a function that checks if the scorecard is full
-; Need a function that returns the player with the smaller score
-;
-; playRound function
-; For the first round, play the player_id turn first and play the other player's turn next
-; For any other round, play the player with the smaller score first, and the other player next
-
-
+; *********************************************************************
+; Function Name: playTurn
+; Purpose: This function displays the player's turn.
+; Parameters:
+; player_id, a number representing the player (1 for human, 2 for computer).
+; Return Value: None.
+; Algorithm:
+; 1. Display the player's turn.
+; *********************************************************************
 (defun playTurn(player_id)
     (format t "~%~%-----------~%")   
     (format t "~a's turn~%" (get-player player_id))
     (format t "~%-----------~%")   
 )
 
-;; Serialization functions
+; *********************************************
+; Serialization Functions begin here
+; *********************************************
+
+; *********************************************************************
+; Function Name: ask-save-and-exit
+; Purpose: Asks the user if they wish to save the game and exit.
+; Parameters:
+; scorecard, a list of lists representing the scorecard. Each inner list contains the category number and the score for that category.
+; round, an number representing the current round number.
+; Return Value: None.
+; Algorithm:
+; 1. Ask the user if they wish to save the game and exit.
+; 2. If the user chooses to save and exit:
+;    a. Serialize the game.
+;    b. Exit the program.
+; 3. If the user chooses not to save and exit, do nothing.
+; 4. If the input is invalid, ask again recursively.
+; Reference: none
+; *********************************************************************
 (defun ask-save-and-exit (scorecard round)
   "Asks the user if they wish to save the game and exit."
 (terpri)  
@@ -79,7 +116,20 @@
 
 
 
-
+; *********************************************************************
+; Function Name: serialize-game
+; Purpose: Serialize the game data and save it to a file.
+; Parameters:
+; scorecard, a list of lists representing the scorecard. Each inner list contains the category number and the score for that category.
+; round, an number representing the current round number.
+; Return Value: None.
+; Algorithm:
+; 1. Prompt the user for the filename.
+; 2. Serialize the game data into the desired format.
+; 3. Write the data to the file.
+; 4. Inform the user that the file was saved successfully.
+; Reference: none
+; *********************************************************************
 (defun serialize-game (scorecard round)
   ; Prompt the user for the filename
   (format t "Enter the name of the file:~%")
@@ -100,7 +150,17 @@
     (format t "File saved successfully.~%")
     (finish-output)))
 
-; Function to serialize the scorecard into the desired format
+; *********************************************************************
+; Function Name: serialize-scorecard
+; Purpose: Serialize the scorecard data.
+; Parameters:
+; scorecard, a list of lists representing the scorecard. Each inner list contains the category number and the score for that category.
+; Return Value: A serialized version of the scorecard.
+; Algorithm:
+; 1. Call the helper function serialize-scorecard-helper with an empty accumulator.
+; 2. Reverse the accumulated list to maintain the original order.
+; Reference: none
+; *********************************************************************
 (defun serialize-scorecard (scorecard)
   (serialize-scorecard-helper scorecard '()))
 
@@ -115,7 +175,17 @@
                                    (cons (serialize-scorecard-entry entry) acc))))))
 
 
-; Function to serialize a single scorecard entry
+; *********************************************************************
+; Function Name: serialize-scorecard-entry
+; Purpose: Serialize a single entry in the scorecard.
+; Parameters:
+; entry, a list representing a single entry in the scorecard. The entry contains the category number, player ID, and turn number.
+; Return Value: A serialized version of the entry.
+; Algorithm:
+; 1. If the entry has a score, player ID, and turn number, return a list with the player ID and turn number.
+; 2. If the entry is empty (no score), return a list with a score of 0.
+; Reference: none
+; *********************************************************************
 (defun serialize-scorecard-entry (entry)
   (cond
     ;; If the entry has a score, player ID, and turn number

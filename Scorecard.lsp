@@ -1,10 +1,34 @@
 (load "Dice.lsp")
 
+; *********************************************************************
+; Function Name: get-player
+; Purpose: This function returns the player name based on the player ID.
+; Parameters:
+; player-id, a number representing the player ID.
+; Return Value: The player name as a string.
+; Algorithm:
+; 1. Check the player ID.
+; 2. Return the corresponding player name.
+; Reference: none
+; *********************************************************************
 (defun get-player (player-id)
   (cond ((equal player-id 1) "You")
         ((equal player-id 2) "Computer")
         (t "X")))
 
+
+; *********************************************************************
+; Function Name: display-row
+; Purpose: Display a row of the scorecard.
+; Parameters:
+; index, a number representing the row number.
+; row, a list representing the row of the scorecard.
+; Return Value: None.
+; Algorithm:
+; 1. Extract the category, score, player ID, and round from the row.
+; 2. Display the row with proper formatting.
+; Reference: none
+; *********************************************************************
 (defun display-row (index row)
   (let ((category (first row))
         (score (second row))
@@ -17,11 +41,39 @@
             (get-player player-id)  ; Player
             (or round "0"))))     ; Round
 
+
+
+; *********************************************************************
+; Function Name: display-scorecard-helper
+; Purpose: Display the scorecard recursively.
+; Parameters:
+; scorecard, a list of lists representing the scorecard.
+; index, a number representing the row number.
+; Return Value: None.
+; Algorithm:
+; 1. Check if the scorecard is empty.
+; 2. If not, display the row and move to the next row.
+; 3. Recursively call the function with the rest of the scorecard.
+; Reference: none
+; *********************************************************************
 (defun display-scorecard-helper (scorecard index)
   (cond ((null scorecard) nil)
         (t (display-row index (first scorecard))
            (display-scorecard-helper (rest scorecard) (+ index 1)))))
 
+
+; *********************************************************************
+; Function Name: display-scorecard
+; Purpose: Display the scorecard.
+; Parameters:
+; scorecard, a list of lists representing the scorecard.
+; Return Value: None.
+; Algorithm:
+; 1. Display the header of the scorecard.
+; 2. Display the separator line.
+; 3. Display the scorecard using a helper function.
+; Reference: none
+; *********************************************************************
 (defun display-scorecard (scorecard)
   (format t "~%Scorecard~%")
   (format t "------------------------------------------------------------------------------~%")
@@ -30,6 +82,20 @@
   (display-scorecard-helper scorecard 0))
 
 
+; *********************************************************************
+; Function Name: calculate-scores-helper
+; Purpose: Calculate the total scores for the human and computer players.
+; Parameters:
+; scorecard, a list of lists representing the scorecard.
+; human-score, a number representing the human player's total score.
+; computer-score, a number representing the computer player's total score.
+; Return Value: 1 if the human player has a lower score, 2 if the computer player has a lower score, 0 if the scores are equal.
+; Algorithm:
+; 1. Check if the scorecard is empty.
+; 2. If the scorecard is empty, compare the final scores.
+; 3. If the scorecard is not empty, process the first entry and move to the next entry.
+; Reference: none
+; *********************************************************************
 (defun calculate-scores-helper (scorecard human-score computer-score)
   (cond
     ;; Base case: If the scorecard is empty, compare the final scores
@@ -56,13 +122,50 @@
          ;; If score is nil or player ID is invalid, move to the next entry
          (t (calculate-scores-helper (rest scorecard) human-score computer-score)))))))
 
+
+; *********************************************************************
+; Function Name: calculate-total-scores
+; Purpose: Calculate the total scores for the human and computer players.
+; Parameters:
+; scorecard, a list of lists representing the scorecard.
+; Return Value: A list containing the total scores for the human and computer players.
+; Algorithm:
+; 1. Initialize the scores at 0.
+; 2. Call the helper function to calculate the scores.
+; Reference: none
+; *********************************************************************
 (defun calculate-total-scores (scorecard)
   (calculate-scores-helper scorecard 0 0))  ;; Initialize scores at 0
 
 
+; *********************************************************************
+; Function Name: total-scores
+; Purpose: Calculate the total scores for the human and computer players.
+; Parameters:
+; scorecard, a list of lists representing the scorecard.
+; Return Value: A list containing the total scores for the human and computer players.
+; Algorithm:
+; 1. Call the helper function to calculate the scores.
+; Reference: none
+; *********************************************************************
 (defun total-scores(scorecard)
     (total-scores-helper scorecard 0 0))
 
+
+; *********************************************************************
+; Function Name: total-scores-helper
+; Purpose: Calculate the total scores for the human and computer players.
+; Parameters:
+; scorecard, a list of lists representing the scorecard.
+; human-score, a number representing the human player's total score.
+; computer-score, a number representing the computer player's total score.
+; Return Value: A list containing the total scores for the human and computer players.
+; Algorithm:
+; 1. Check if the scorecard is empty.
+; 2. If the scorecard is empty, return the total scores.
+; 3. If the scorecard is not empty, process the first entry and move to the next entry.
+; Reference: none
+; *********************************************************************
 (defun total-scores-helper (scorecard human-score computer-score)
     (cond
         ((null scorecard) (list human-score computer-score))
@@ -78,13 +181,41 @@
              (t (total-scores-helper (rest scorecard) human-score computer-score)))))))
 
 
-
+; *********************************************************************
+; Function Name: isScorecardFilled
+; Purpose: Check if the scorecard is completely filled.
+; Parameters:
+; scorecard, a list of lists representing the scorecard.
+; Return Value: 1 if the scorecard is filled, 0 otherwise.
+; Algorithm:
+; 1. Check if the scorecard is empty.
+; 2. If the scorecard is empty, it is filled.
+; 3. If the scorecard is not empty, check the first entry.
+; 4. If the first entry is not filled, the scorecard is not filled.
+; 5. If the first entry is filled, check the rest of the scorecard.
+; Reference: none
+; *********************************************************************
 (defun isScorecardFilled (scorecard)
   (cond ((null scorecard) t)  ;; Base case: If the scorecard is empty, it's filled.
         ((null (first (rest (first scorecard)))) nil)  ;; Check if the second element of the first row is nil.
         (t (isScorecardFilled (rest scorecard)))))  ;; Recursively check the rest of the scorecard.
 
 
+; *********************************************************************
+; Function Name: scoreCategory
+; Purpose: Score a given category in the scorecard.
+; Parameters:
+; scorecard, a list of lists representing the scorecard.
+; dice, a list of numbers representing the dice roll.
+; category-number, a number representing the category to score.
+; player_id, a number representing the player ID.
+; round, a number representing the current round.
+; Return Value: The updated scorecard after scoring the category.
+; Algorithm:
+; 1. Get the score for the category based on the dice roll.
+; 2. Update the scorecard with the new score.
+; Reference: none
+; *********************************************************************
 (defun scoreCategory (scorecard dice category-number player_id round)
     (let* ((score (getCategoryScore dice category-number)))
         (updateCategoryScore scorecard dice category-number score player_id round)
@@ -307,11 +438,6 @@
 
 ; given the categoryNo, check if category is available to score
 (defun isCategoryAvailable (category-index scorecard numOfRolls)
-  ;(print "Category Available ko ho hai")
-  ;(print (first scorecard))
-  ;(print "Category Available ko ho hai")
-  ;(print (second scorecard))
-  ;(format t "ROll NO: ~a~%" numOfRolls)
 
   (cond ((>= numOfRolls 1) 
     (let ((category (nth (- category-index 1) scorecard)))
@@ -319,10 +445,8 @@
         ((null (second category)) t)  ;; If the score is nil, return true (t)
         (t nil)))
   )
-  (t (isCategoryAvailable category-index (first scorecard) 1))
-  )
-
-  )                    ;; Otherwise, return false (nil)
+  (t (isCategoryAvailable category-index (first scorecard) 1))))        
+              ;; Otherwise, return false (nil)
 
 ;
 

@@ -1,10 +1,8 @@
-(defun initialize-random-seed ()
-  (setf *random-state* (make-random-state t)))
+
 
 (defun get-random-dice-roll ()
   "Generate a random dice roll between 1 and 6."
-  (initialize-random-seed) ;; Initialize the random seed
-  (+ 1 (random 6)))
+  (+ 1 (random 6 (make-random-state t)))) 
 
 
 
