@@ -13,7 +13,9 @@
     (format t "You rolled: ~{~a ~}~%" dice)
     (let ((Categories (potentialCategories scorecard dice))))
     (terpri)
-    (format t "Available Categories to Score: ~a~%" (available-categories dice scorecard))
+    (format t "~%Available Categories to Score: ~a~%" (available-categories dice scorecard))
+            (displayAvailableCategories (available-categories dice scorecard))
+    ;(print (displayAvailableCategories (available-categories dice scorecard)))
     (let ((final-dice (tryreroll dice scorecard 0 nil)))  ; Passing nil for kept-dice
       ; Display the final dice after rerolls
       (format t "Your final dice: ~{~a ~}~%" final-dice)
@@ -264,11 +266,16 @@
 ; Allows the user to reroll dice up to 2 times
 (defun tryreroll (dice scorecard reroll-count kept-dice)
   ;(print reroll-count)
-  (cond ((= reroll-count 1) (let ((Categories (potentialCategories scorecard dice))) Categories)))
+  (cond ((= reroll-count 1) (let ((Categories (potentialCategories scorecard dice))) Categories)
+          (format t "~%Available Categories to Score: ~a~%" (available-categories dice scorecard))
+            (displayAvailableCategories (available-categories dice scorecard))  
+        ))
   (terpri)
   (let ((helpAsked (humanHelp scorecard dice kept-dice reroll-count))))
   (cond
     ((< reroll-count 2)
+      ;(format t "Available Categories to Score: ~a~%" (available-categories dice scorecard))
+          ;  (displayAvailableCategories (available-categories dice scorecard))
      (let ((userInput (askInput)))  ; Ask if the user wants to reroll
        (finish-output)
        (cond
@@ -283,7 +290,10 @@
          ; User chooses to stand
          ((equal userInput "N")
           (format t "You chose to stand.~%")
+          (terpri)
           (format t "Available Categories to Score: ~a~%" (available-categories dice scorecard))
+          (displayAvailableCategories (available-categories dice scorecard))
+          (terpri)
           dice)  ; Return the current dice
 
          ; Invalid input, ask again
@@ -293,7 +303,8 @@
     (t
      ; No more rerolls allowed
      (format t "~%You have used all your rerolls. You must stand now.~%")
-     (format t "Available Categories to Score: ~a~%" (available-categories dice scorecard))
+     ;(format t "Available Categories to Score: ~a~%" (available-categories dice scorecard))
+      ;(displayAvailableCategories (available-categories dice scorecard))
      dice)))  ; Return the current dice
 
 
@@ -685,7 +696,7 @@
                                 (t
                                 (cond
                                     ((isTwoSequential dice)
-                                    (format t "Try pursuing Four Straight since you have three sequential dices.~%")
+                                    (format t "Try pursuing Four Straight since you have two sequential dices.~%")
                                     (let* ((sequentialValues (isTwoSequential dice))
                                             (indicesToKeep (findIndicesOfSequence dice sequentialValues))
                                             (indicesToReroll (custom-remove '(1 2 3 4 5) indicesToKeep))
@@ -784,7 +795,7 @@
                 (cond
                         ((four-of-a-kind-p dice)
                          (format t "Four of a Kind is available to score! You may score it!~%")
-)
+                          )
                         (t
                             (cond
                             ((three-of-a-kind-p dice)

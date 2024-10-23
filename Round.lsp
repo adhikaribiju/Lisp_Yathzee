@@ -18,12 +18,12 @@
      (cond 
        ;; Check if the scorecard is filled after the human's turn
        ((isScorecardFilled human-updated-scorecard) 
-        (cond ((/= round 1) (ask-save-and-exit scorecard round)))
+        (cond ((/= round 1) (ask-save-and-exit human-updated-scorecard round)))
         human-updated-scorecard)  ;; Return the final updated scorecard if filled
        
        (t  ;; Otherwise, proceed to the computer's turn
         (let ((computer-updated-scorecard (playComputerTurn human-updated-scorecard round)))
-               (cond ((/= round 1) (ask-save-and-exit scorecard round)))
+               (cond ((/= round 1) (ask-save-and-exit computer-updated-scorecard round)))
           computer-updated-scorecard)))))  ;; Return the final updated scorecard
 
   ;; Computer starts first, then human
@@ -32,12 +32,12 @@
      (cond 
        ;; Check if the scorecard is filled after the computer's turn
        ((isScorecardFilled computer-updated-scorecard) 
-        (cond ((/= round 1) (ask-save-and-exit scorecard round)))
+        (cond ((/= round 1) (ask-save-and-exit computer-updated-scorecard round)))
         computer-updated-scorecard)  ;; Return the final updated scorecard if filled
        
        (t  ;; Otherwise, proceed to the human's turn
         (let ((human-updated-scorecard (playHumanTurn computer-updated-scorecard round)))
-               (cond ((/= round 1) (ask-save-and-exit scorecard round)))
+               (cond ((/= round 1) (ask-save-and-exit human-updated-scorecard round)))
           human-updated-scorecard))))))  ;; Return the final updated scorecard
 )  ;; Return the final updated scorecard
 
@@ -66,7 +66,7 @@
     (cond
       ; User chooses to save and exit
       ((or (string= input "Y") (string= input "y"))
-       (serialize-game scorecard round)
+       (serialize-game scorecard (+ round 1))
        (finish-output)
        (exit))
       ; User chooses not to save and exit

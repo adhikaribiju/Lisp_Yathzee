@@ -360,3 +360,53 @@
        ((isCategoryAvailable 10 scorecard 1) (format t "Four Straight~%")))
       (cond
        ((isCategoryAvailable 11 scorecard 1) (format t "Five Straight~%")))))))
+
+
+(defun displayAvailableCategories (numbers)
+  (cond ((member 1 numbers) (format t "Aces~%")))
+  (cond ((member 2 numbers) (format t "Twos~%")))
+  (cond ((member 3 numbers) (format t "Threes~%")))
+  (cond ((member 4 numbers) (format t "Fours~%")))
+  (cond ((member 5 numbers) (format t "Fives~%")))
+  (cond ((member 6 numbers) (format t "Sixes~%")))
+  (cond ((member 7 numbers) (format t "Three of a Kind~%")))
+  (cond ((member 8 numbers) (format t "Four of a Kind~%")))
+  (cond ((member 9 numbers) (format t "Full House~%")))
+  (cond ((member 10 numbers) (format t "Four Straight~%")))
+  (cond ((member 11 numbers) (format t "Five Straight~%")))
+  (cond ((member 12 numbers) (format t "Yahtzee~%"))))
+
+
+
+
+(defun potentialCategoriesComp (scorecard dice)
+  (let* ((availCategories (available-categories dice scorecard)))
+    (format t "~%~%Potential Categories~%~%")
+    
+    ;; Check and display number categories if available using separate cond statements
+    (cond ((member 1 availCategories) (format t "Aces~%")))
+    (cond ((member 2 availCategories) (format t "Twos~%")))
+    (cond ((member 3 availCategories) (format t "Threes~%")))
+    (cond ((member 4 availCategories) (format t "Fours~%")))
+    (cond ((member 5 availCategories) (format t "Fives~%")))
+    (cond ((member 6 availCategories) (format t "Sixes~%")))
+    
+    ;; Additional category checks based on dice conditions
+    (cond
+     ((two-of-a-kind-p dice)
+      (cond
+       ((isCategoryAvailable 7 scorecard 1) (format t "Three of a Kind~%")))
+      (cond
+       ((isCategoryAvailable 8 scorecard 1) (format t "Four of a Kind~%")))
+      (cond
+       ((isCategoryAvailable 9 scorecard 1) (format t "Full House~%")))
+      (cond
+       ((isCategoryAvailable 12 scorecard 1) (format t "Yahtzee~%")))))
+    
+    (cond
+     ((isTwoSequential dice)
+      (cond
+       ((isCategoryAvailable 10 scorecard 1) (format t "Four Straight~%")))
+      (cond
+       ((isCategoryAvailable 11 scorecard 1) (format t "Five Straight~%")))))))
+

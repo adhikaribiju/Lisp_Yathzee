@@ -45,8 +45,9 @@
                     (let* ( (newdice (second (first decision)))
                             (category (highestScoreCategory newdice scorecard))
                             (new-scorecard (scoreCategory scorecard newdice category 2 round)))
+                            (format t "Final Dice: ~a~%" newdice)
                             ;(print newdice)
-                            (format t "Computer scored on Category No:~a~%" category)
+                            (format t "Computer scored on Category No: ~a~%" category)
                         new-scorecard))  ;; Return new-scorecard
 
                     (t
@@ -191,8 +192,10 @@
 (defun findPattern (scorecard dice round_no keptDicesInd numOfRolls)
   ;(format t "PUGEA~%")
   ;(print scorecard)
-    (format t "~%~%Roll No. ~a~% " numOfRolls)
+    (format t "~%~%Roll No. ~a~%" numOfRolls)
     (format t "Computer rolled: ~{~a ~}~%" dice)
+    (cond ((= numOfRolls 1) (let ((Categories (potentialCategories scorecard dice))) Categories)))
+    (terpri)
     (cond ((> numOfRolls 1)
         (cond
             ((= (isLowerSectionFilled (first scorecard)) 0)

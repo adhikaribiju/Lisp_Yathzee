@@ -47,13 +47,36 @@
        (start-yahtzee))))
 )
 
- (defun start-game ()
+(defun start-game ()
   "Start a new game and randomly generate dice rolls for human and computer."
-    (format t "~%Rolling the dice...~%")
-    (let ((user-roll (get-random-dice-roll))
-            (computer-roll (get-random-dice-roll)))
-        (compare-dice-rolls user-roll computer-roll))
-)
+  (format t "~%Rolling the dice to determine who starts the round....~%")
+  (finish-output)
+  (format t "Do you want to manually roll (M) or randomly roll (R) the dice? ")
+  (finish-output)
+  (let* ((user-input (read-line)))
+    (cond
+      ((string-equal user-input "R")
+       (let ((user-roll (get-random-dice-roll))
+             (computer-roll (get-random-dice-roll)))
+         (compare-dice-rolls user-roll computer-roll)))
+      ((string-equal user-input "M")
+       (let ((user-roll (get-manual-dice-roll "Human"))
+             (computer-roll (get-manual-dice-roll "Computer")))
+         (compare-dice-rolls user-roll computer-roll)))
+      (t
+       (format t "~%Invalid choice. Please enter 'M' for manual or 'R' for random.~%")
+       (start-game)))))
+
+
+(defun get-manual-dice-roll (player)
+  "Prompts the user to enter a dice roll manually and validates the input."
+  (format t "~%Enter a number between 1 and 6 for ~a " player)
+  (finish-output)
+  (let ((user-input (parse-integer (read-line))))
+    (cond ((or (not user-input) (> user-input 6) (< user-input 1))
+           (format t "~%Invalid Entry. Enter a number from 1-6.~%")
+           (get-manual-dice-roll player))
+          (t user-input))))
 
 (defun compare-dice-rolls (user-roll computer-roll)
   "Compare the dice rolls and determine the winner."
